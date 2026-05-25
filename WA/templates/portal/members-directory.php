@@ -72,14 +72,6 @@
             <?php endif; ?>
         </div>
 
-        <?php if (count($members) >= 10) : ?>
-            <div class="load-more-container">
-                <button id="wshc-load-more" class="wshc-load-more-btn">
-                    <span class="dashicons dashicons-arrow-down-alt2"></span>
-                    Load More Members
-                </button>
-            </div>
-        <?php endif; ?>
     </div>
 
     <!-- Institutional Onboarding Guide & Policies (Relocated & Compacted) -->
