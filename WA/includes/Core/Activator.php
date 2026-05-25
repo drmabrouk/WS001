@@ -98,6 +98,10 @@ class Activator {
                 'title'   => 'Dashboard',
                 'content' => '[wshc_dashboard]',
             ],
+            'verify' => [
+                'title'   => 'Verification Portal',
+                'content' => '[wshc_verification]',
+            ],
         ];
 
         foreach ($pages as $slug => $page_data) {
