@@ -33,52 +33,74 @@
         <span class="divider-text">Verified Members Registry</span>
     </div>
 
-    <!-- Modern Identity Profiles UI -->
-    <div class="members-registry-grid">
-        <?php if (!empty($members)) : ?>
-            <?php foreach ($members as $member) :
-                $role_names = [
-                    'wshc_member'               => 'Official Member',
-                    'wshc_research_member'      => 'Research Member',
-                    'wshc_practitioner_member'  => 'Practitioner Member',
-                    'wshc_fellowship_member'    => 'Fellowship Member',
-                    'wshc_scientific_reviewer'  => 'Scientific Reviewer',
-                    'wshc_programs_manager'     => 'Programs Manager',
-                    'wshc_regional_coordinator' => 'Regional Coordinator',
-                    'wshc_secretary_general'    => 'Secretary-General',
-                ];
-                $user_data = get_userdata($member->user_id);
-                $primary_role = !empty($user_data->roles) ? $user_data->roles[0] : '';
-                $category = isset($role_names[$primary_role]) ? $role_names[$primary_role] : 'Council Member';
+    <!-- Table-List Hybrid Layout -->
+    <div class="directory-list-container">
+        <div class="directory-list-header">
+            <div class="col-category">Category</div>
+            <div class="col-identity">Member Identity</div>
+            <div class="col-field">Field of Study</div>
+            <div class="col-serial">Serial ID</div>
+            <div class="col-country">Nationality</div>
+        </div>
 
-                // Get Flag URL
-                $flag_url = 'https://flagcdn.com/w40/' . strtolower($member->nationality) . '.png';
-            ?>
-                <div class="member-profile-card">
-                    <div class="card-top">
-                        <span class="member-category"><?php echo esc_html($category); ?></span>
-                        <div class="member-serial">ID: #<?php echo esc_html($member->membership_id); ?></div>
-                    </div>
+        <div id="wshc-member-registry" class="members-registry-list">
+            <?php if (!empty($members)) : ?>
+                <?php foreach ($members as $member) :
+                    $role_names = [
+                        'wshc_member'               => 'Official Member',
+                        'wshc_research_member'      => 'Research Member',
+                        'wshc_practitioner_member'  => 'Practitioner Member',
+                        'wshc_fellowship_member'    => 'Fellowship Member',
+                        'wshc_scientific_reviewer'  => 'Scientific Reviewer',
+                        'wshc_programs_manager'     => 'Programs Manager',
+                        'wshc_regional_coordinator' => 'Regional Coordinator',
+                        'wshc_secretary_general'    => 'Secretary-General',
+                    ];
+                    $user_data = get_userdata($member->user_id);
+                    $primary_role = !empty($user_data->roles) ? $user_data->roles[0] : '';
+                    $category = isset($role_names[$primary_role]) ? $role_names[$primary_role] : 'Council Member';
 
-                    <div class="member-avatar">
-                        <?php echo get_avatar($member->user_id, 90); ?>
-                    </div>
+                    // Get Flag Emoji from CountryPicker
+                    $flag_emoji = \WSHC\Utils\CountryPicker::get_flag($member->nationality);
+                ?>
+                    <div class="member-row">
+                        <div class="col-category">
+                            <span class="member-category"><?php echo esc_html($category); ?></span>
+                        </div>
 
-                    <div class="member-info">
-                        <h2 class="member-name"><?php echo esc_html($member->full_name); ?></h2>
-                        <p class="member-field"><?php echo esc_html($member->major); ?></p>
-                    </div>
+                        <div class="col-identity">
+                            <?php echo get_avatar($member->user_id, 40); ?>
+                            <h2 class="member-name"><?php echo esc_html($member->full_name); ?></h2>
+                        </div>
 
-                    <div class="member-nationality">
-                        <img src="<?php echo esc_url($flag_url); ?>" class="country-flag" alt="<?php echo esc_attr($member->nationality); ?>">
-                        <span class="country-name"><?php echo esc_html($member->nationality); ?></span>
+                        <div class="col-field">
+                            <span class="field-text"><?php echo esc_html($member->major); ?></span>
+                        </div>
+
+                        <div class="col-serial">
+                            <span class="serial-text">#<?php echo esc_html($member->membership_id); ?></span>
+                        </div>
+
+                        <div class="col-country">
+                            <span class="country-flag"><?php echo $flag_emoji; ?></span>
+                            <span class="country-name"><?php echo esc_html($member->nationality); ?></span>
+                        </div>
                     </div>
+                <?php endforeach; ?>
+            <?php else : ?>
+                <div class="no-members-notice">
+                    <span class="dashicons dashicons-groups"></span>
+                    <p>No verified members found in the current registry state.</p>
                 </div>
-            <?php endforeach; ?>
-        <?php else : ?>
-            <div class="no-members-notice">
-                <span class="dashicons dashicons-groups"></span>
-                <p>No verified members found in the current registry state.</p>
+            <?php endif; ?>
+        </div>
+
+        <?php if (count($members) >= 10) : ?>
+            <div class="load-more-container">
+                <button id="wshc-load-more" class="wshc-load-more-btn">
+                    <span class="dashicons dashicons-arrow-down-alt2"></span>
+                    Load More Members
+                </button>
             </div>
         <?php endif; ?>
     </div>
