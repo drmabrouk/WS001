@@ -10,6 +10,7 @@ class MembershipManager {
      * Initialize membership hooks.
      */
     public function init() {
+        add_shortcode('wshc_members_directory', [$this, 'render_public_directory']);
         add_action('wp_ajax_wshc_submit_membership_app', [$this, 'submit_application']);
         add_action('wp_ajax_wshc_list_applications', [$this, 'list_applications']);
         add_action('wp_ajax_wshc_process_application', [$this, 'process_application']);
@@ -360,6 +361,46 @@ class MembershipManager {
         \WSHC\UserManagement\ActivityLogger::log(get_current_user_id(), 'membership_update', "Admin updated membership data for user ID: $user_id");
 
         wp_send_json_success(['message' => 'Membership record updated successfully.']);
+    }
+
+    /**
+     * Render the public members directory.
+     */
+    public function render_public_directory() {
+        global $wpdb;
+        $table = $wpdb->prefix . 'wshc_membership_applications';
+
+        // Fetch approved members joined with their membership ID
+        $query = $wpdb->prepare("
+            SELECT a.*, m.meta_value as membership_id
+            FROM $table a
+            LEFT JOIN $wpdb->usermeta m ON a.user_id = m.user_id AND m.meta_key = 'wshc_membership_id'
+            WHERE a.status = 'approved'
+            ORDER BY a.created_at DESC
+        ");
+        $members_raw = $wpdb->get_results($query);
+
+        // Process titles (Automatically prepend "Dr.")
+        $members = array_map(function($member) {
+            $name = $member->full_name;
+            $degree = $member->degree;
+            if ($degree && (stripos($degree, 'PhD') !== false || stripos($degree, 'Doctor') !== false || stripos($degree, 'MD') !== false)) {
+                if (stripos($name, 'Dr.') === false) {
+                    $member->full_name = 'Dr. ' . $name;
+                }
+            }
+            return $member;
+        }, $members_raw);
+
+        // Enqueue styles
+        wp_enqueue_style('wshc-directory-style', WSHC_PLUGIN_URL . 'assets/css/directory.css', [], '1.0.0');
+
+        ob_start();
+        $template_path = WSHC_PLUGIN_DIR . 'templates/portal/members-directory.php';
+        if (file_exists($template_path)) {
+            include $template_path;
+        }
+        return ob_get_clean();
     }
 
     private function generate_membership_id() {
