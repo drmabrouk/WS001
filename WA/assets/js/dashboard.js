@@ -97,6 +97,32 @@ jQuery(document).ready(function($) {
         });
     });
 
+    $(document).on('click', '#save-design-settings', function() {
+        const btn = $(this);
+        const data = {
+            action: 'wshc_save_design_settings',
+            nonce: wshc_dashboard_obj.nonce,
+            nav_bg: $('#design-nav-bg').val(),
+            sidebar_bg: $('#design-sidebar-bg').val(),
+            accent_color: $('#design-accent').val(),
+            canvas_bg: $('#design-canvas-bg').val(),
+            font_family: $('#design-font').val(),
+            base_font_size: $('#design-font-size').val()
+        };
+
+        btn.prop('disabled', true).text('APPLYING...');
+
+        $.ajax({
+            url: wshc_dashboard_obj.ajaxurl,
+            type: 'POST',
+            data: data,
+            success: function(response) {
+                alert(response.data.message);
+                if (response.success) window.location.reload();
+            }
+        });
+    });
+
     let currentAppId = null;
     $(document).on('click', '.view-app', function() {
         const id = $(this).data('id');
@@ -429,6 +455,11 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if (response.success) {
+                    const blob = new Blob([response.data.data], { type: 'text/plain' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = response.data.filename;
+                    link.click();
                     alert(response.data.message);
                 } else {
                     alert(response.data.message);
@@ -463,23 +494,37 @@ jQuery(document).ready(function($) {
     });
 
     $(document).on('click', '#import-data-btn', function() {
-        if (!confirm('Are you sure you want to import data? This may overwrite current settings.')) return;
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.bin';
+        input.onchange = e => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.readAsText(file);
+            reader.onload = readerEvent => {
+                const content = readerEvent.target.result;
+                if (!confirm('Are you sure you want to restore this data? ALL current records will be overwritten.')) return;
 
-        const btn = $(this);
-        btn.prop('disabled', true).text('IMPORTING...');
+                const btn = $(this);
+                btn.prop('disabled', true).text('RESTORING...');
 
-        $.ajax({
-            url: wshc_dashboard_obj.ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'wshc_import_data',
-                nonce: wshc_dashboard_obj.nonce
-            },
-            success: function(response) {
-                alert(response.data.message);
-                btn.prop('disabled', false).text('IMPORT DATA PACKAGE');
-            }
-        });
+                $.ajax({
+                    url: wshc_dashboard_obj.ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'wshc_import_data',
+                        nonce: wshc_dashboard_obj.nonce,
+                        backup_data: content
+                    },
+                    success: function(response) {
+                        alert(response.data.message);
+                        if (response.success) window.location.reload();
+                        btn.prop('disabled', false).text('IMPORT DATA PACKAGE');
+                    }
+                });
+            };
+        };
+        input.click();
     });
 
     // Toggle Status Modal
@@ -538,10 +583,6 @@ jQuery(document).ready(function($) {
     $(document).on('click', '.view-user', function(e) {
         e.preventDefault();
         const userId = $(this).data('id');
-        const row = $(this).closest('tr');
-        const role = row.find('td:eq(2)').text();
-        const joined = row.find('td:eq(3)').text();
-        const status = row.find('td:eq(4)').text();
 
         $.ajax({
             url: wshc_dashboard_obj.ajaxurl,
@@ -561,9 +602,9 @@ jQuery(document).ready(function($) {
                             <div class="user-detail-row"><strong>Last Name</strong> ${u.last_name || 'N/A'}</div>
                             <div class="user-detail-row"><strong>Username</strong> ${u.user_login}</div>
                             <div class="user-detail-row"><strong>Email</strong> ${u.user_email}</div>
-                            <div class="user-detail-row"><strong>Role</strong> ${role}</div>
-                            <div class="user-detail-row"><strong>Joined Date</strong> ${joined}</div>
-                            <div class="user-detail-row"><strong>Account Status</strong> ${status}</div>
+                            <div class="user-detail-row"><strong>Role</strong> ${u.role}</div>
+                            <div class="user-detail-row"><strong>Joined Date</strong> ${u.joined}</div>
+                            <div class="user-detail-row"><strong>Account Status</strong> ${u.status}</div>
                         </div>
                         <div style="margin-top: 25px; display: flex; gap: 10px;">
                             <button class="wshc-auth-btn edit-trigger" data-id="${u.ID}" style="background: #000; flex: 1;">Edit Account</button>
