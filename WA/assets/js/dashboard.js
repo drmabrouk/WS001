@@ -850,6 +850,42 @@ jQuery(document).ready(function($) {
         });
     }
 
+    // Real-time Username Availability Check
+    let usernameCheckTimer;
+    $(document).on('keyup', '#my-form-username, #form-username', function() {
+        const input = $(this);
+        const username = input.val();
+        const userId = input.attr('id') === 'my-form-username' ? wshc_dashboard_obj.current_user_id : $('#form-user-id').val();
+
+        clearTimeout(usernameCheckTimer);
+
+        if (username.length < 4) {
+            input.css('border-color', '#d32f2f');
+            return;
+        }
+
+        usernameCheckTimer = setTimeout(function() {
+            $.ajax({
+                url: wshc_dashboard_obj.ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'wshc_check_username',
+                    nonce: wshc_dashboard_obj.nonce,
+                    username: username,
+                    user_id: userId
+                },
+                success: function(response) {
+                    if (response.success) {
+                        input.css('border-color', '#2e7d32');
+                    } else {
+                        input.css('border-color', '#d32f2f');
+                        console.log('Username error:', response.data.message);
+                    }
+                }
+            });
+        }, 500);
+    });
+
     $(document).on('click', '.close-modal', function() {
         $(this).closest('.wshc-modal').fadeOut(200, function() {
             $(this).addClass('hidden');
