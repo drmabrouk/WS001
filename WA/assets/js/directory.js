@@ -1,56 +1,85 @@
 jQuery(document).ready(function($) {
     let offset = 10;
+    let searchTimer;
     const loadMoreBtn = $('#wshc-load-more');
-    const registryContainer = $('#wshc-member-registry');
+    const registryList = $('#wshc-member-registry');
+    const searchInput = $('#wshc-directory-search');
 
-    if (loadMoreBtn.length) {
-        loadMoreBtn.on('click', function(e) {
-            e.preventDefault();
+    // Asynchronous Search Logic
+    if (searchInput.length) {
+        searchInput.on('input', function() {
+            clearTimeout(searchTimer);
+            const query = $(this).val();
 
-            const btn = $(this);
-            const originalText = btn.html();
-
-            // Set Loading State
-            btn.prop('disabled', true).html('<span class="dashicons dashicons-update spin"></span> Loading batches...');
-
-            $.ajax({
-                url: wshc_directory_obj.ajaxurl,
-                type: 'POST',
-                data: {
-                    action: 'wshc_load_more_members',
-                    offset: offset
-                },
-                success: function(response) {
-                    if (response.success) {
-                        if (response.data.count > 0) {
-                            const newRows = $(response.data.html).hide();
-                            registryContainer.append(newRows);
-                            newRows.fadeIn(500);
-
-                            offset += response.data.count;
-
-                            // If we fetched less than 10, no more members exist
-                            if (response.data.count < 10) {
-                                btn.fadeOut(300);
-                            } else {
-                                btn.prop('disabled', false).html(originalText);
-                            }
-                        } else {
-                            btn.fadeOut(300);
-                        }
-                    } else {
-                        btn.prop('disabled', false).html(originalText);
-                        console.error('Directory fetch error:', response.data.message);
-                    }
-                },
-                error: function() {
-                    btn.prop('disabled', false).html(originalText);
-                    alert('Asynchronous fetch failed. Please check your network connection.');
-                }
-            });
+            searchTimer = setTimeout(function() {
+                offset = 0; // Reset offset for new search
+                loadBatch(true, query);
+            }, 500); // 500ms debounce
         });
     }
 
-    // Add spin animation via CSS if not present
-    $('<style>.spin { animation: spin 1s linear infinite; } @keyframes spin { 100% { transform: rotate(360deg); } }</style>').appendTo('head');
+    // Load More Logic
+    if (loadMoreBtn.length) {
+        loadMoreBtn.on('click', function(e) {
+            e.preventDefault();
+            loadBatch(false, searchInput.val());
+        });
+    }
+
+    /**
+     * Fetch a batch of members.
+     * @param {boolean} replace - Whether to replace or append results.
+     * @param {string} search - The search query.
+     */
+    function loadBatch(replace = false, search = '') {
+        const btn = $('#wshc-load-more');
+        const originalBtnText = btn.html();
+
+        if (replace) {
+            registryList.css('opacity', '0.5');
+        } else {
+            btn.prop('disabled', true).html('<span class="dashicons dashicons-update spin"></span> Loading batches...');
+        }
+
+        $.ajax({
+            url: wshc_directory_obj.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'wshc_load_more_members',
+                offset: offset,
+                search: search
+            },
+            success: function(response) {
+                registryList.css('opacity', '1');
+                btn.prop('disabled', false).html(originalBtnText);
+
+                if (response.success) {
+                    const html = response.data.html;
+                    const count = response.data.count;
+
+                    if (replace) {
+                        registryList.html(html || '<div class="no-members-notice"><span class="dashicons dashicons-search"></span><p>No results match your criteria.</p></div>');
+                        offset = count;
+                    } else {
+                        const newRows = $(html).hide();
+                        registryList.append(newRows);
+                        newRows.fadeIn(400);
+                        offset += count;
+                    }
+
+                    // Handle button visibility
+                    if (count < 10) {
+                        btn.hide();
+                    } else {
+                        btn.show();
+                    }
+                }
+            },
+            error: function() {
+                registryList.css('opacity', '1');
+                btn.prop('disabled', false).html(originalBtnText);
+                alert('Connection error. Please refresh and try again.');
+            }
+        });
+    }
 });

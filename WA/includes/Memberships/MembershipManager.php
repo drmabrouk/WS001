@@ -10,6 +10,7 @@ class MembershipManager {
      * Initialize membership hooks.
      */
     public function init() {
+        add_filter('get_avatar', [$this, 'use_custom_avatar'], 10, 5);
         add_shortcode('wshc_members_directory', [$this, 'render_public_directory']);
         add_action('wp_ajax_wshc_load_more_members', [$this, 'load_more_members']);
         add_action('wp_ajax_nopriv_wshc_load_more_members', [$this, 'load_more_members']);
@@ -369,21 +370,33 @@ class MembershipManager {
      * Load more members via AJAX.
      */
     public function load_more_members() {
-        $offset = isset($_POST['offset']) ? intval($_POST['offset']) : 10;
+        $offset = isset($_POST['offset']) ? intval($_POST['offset']) : 0;
+        $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
 
         global $wpdb;
         $table = $wpdb->prefix . 'wshc_membership_applications';
 
-        $query = $wpdb->prepare("
+        $where = "WHERE a.status = 'approved'";
+        $params = [];
+
+        if (!empty($search)) {
+            $search_wildcard = '%' . $wpdb->esc_like($search) . '%';
+            $where .= " AND (a.full_name LIKE %s OR a.major LIKE %s OR m.meta_value LIKE %s)";
+            array_push($params, $search_wildcard, $search_wildcard, $search_wildcard);
+        }
+
+        $query_str = "
             SELECT a.*, m.meta_value as membership_id
             FROM $table a
             LEFT JOIN $wpdb->usermeta m ON a.user_id = m.user_id AND m.meta_key = 'wshc_membership_id'
-            WHERE a.status = 'approved'
+            $where
             ORDER BY a.created_at DESC
             LIMIT %d, 10
-        ", $offset);
+        ";
 
-        $members_raw = $wpdb->get_results($query);
+        $params[] = $offset;
+
+        $members_raw = $wpdb->get_results($wpdb->prepare($query_str, $params));
 
         if (empty($members_raw)) {
             wp_send_json_success(['html' => '', 'count' => 0]);
@@ -431,7 +444,9 @@ class MembershipManager {
                     <span class="serial-text">#<?php echo esc_html($member->membership_id); ?></span>
                 </div>
                 <div class="col-country">
-                    <span class="country-flag"><?php echo $flag_emoji; ?></span>
+                    <div class="flag-container">
+                        <span class="country-flag"><?php echo $flag_emoji; ?></span>
+                    </div>
                     <span class="country-name"><?php echo esc_html($member->nationality); ?></span>
                 </div>
             </div>
@@ -485,6 +500,31 @@ class MembershipManager {
             include $template_path;
         }
         return ob_get_clean();
+    }
+
+    /**
+     * Filter to use custom uploaded avatar.
+     */
+    public function use_custom_avatar($avatar, $id_or_email, $size, $default, $alt) {
+        $user_id = 0;
+        if (is_numeric($id_or_email)) {
+            $user_id = (int) $id_or_email;
+        } elseif (is_object($id_or_email) && isset($id_or_email->user_id)) {
+            $user_id = (int) $id_or_email->user_id;
+        } elseif (is_string($id_or_email) && ($user = get_user_by('email', $id_or_email))) {
+            $user_id = $user->ID;
+        }
+
+        if ($user_id) {
+            $avatar_id = get_user_meta($user_id, 'wshc_avatar_id', true);
+            if ($avatar_id) {
+                $url = wp_get_attachment_image_url($avatar_id, 'thumbnail');
+                if ($url) {
+                    $avatar = "<img alt='" . esc_attr($alt) . "' src='" . esc_url($url) . "' class='avatar avatar-" . esc_attr($size) . " photo' height='" . esc_attr($size) . "' width='" . esc_attr($size) . "' />";
+                }
+            }
+        }
+        return $avatar;
     }
 
     private function generate_membership_id() {

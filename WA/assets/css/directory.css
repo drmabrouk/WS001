@@ -1,89 +1,118 @@
-/* Directory Styles */
+/* Optimized Directory Styles */
 .wshc-public-directory-portal {
     max-width: 1200px;
-    margin: 40px auto;
+    margin: 20px auto;
     padding: 0 20px;
     font-family: 'Inter', sans-serif;
+    background: #fdfdfd; /* Ultra-light spectrum */
 }
 
+/* Search Bar Styling */
+.directory-search-container {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+#wshc-directory-search {
+    width: 100%;
+    padding: 16px 25px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    outline: none;
+    transition: all 0.3s ease;
+    background: #fff;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+#wshc-directory-search:focus {
+    border-color: #999;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+}
+
+/* Institutional Onboarding Section (Relocated to bottom) */
 .directory-onboarding-section {
-    background: #000;
-    color: #fff;
-    padding: 60px;
-    border-radius: 20px;
-    margin-bottom: 50px;
+    background: #f9f9f9; /* Neutral grey spectrum */
+    color: #333;
+    padding: 40px;
+    border-radius: 15px;
+    margin-top: 50px;
     text-align: center;
+    border: 1px solid #eee;
 }
 
 .guide-header h1 {
-    font-size: 32px;
+    font-size: 24px;
     font-weight: 900;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     letter-spacing: -0.5px;
+    color: #000;
 }
 
 .guide-subtitle {
-    font-size: 16px;
+    font-size: 14px;
     opacity: 0.7;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
 }
 
 .onboarding-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 30px;
-    margin-bottom: 40px;
+    gap: 20px;
+    margin-bottom: 30px;
 }
 
 .guide-card {
-    background: rgba(255,255,255,0.05);
-    padding: 30px;
-    border-radius: 15px;
-    border: 1px solid rgba(255,255,255,0.1);
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #eee;
     transition: all 0.3s ease;
 }
 
 .guide-card:hover {
-    background: rgba(255,255,255,0.08);
-    transform: translateY(-5px);
+    border-color: #ccc;
+    transform: translateY(-3px);
 }
 
 .guide-card .dashicons {
-    font-size: 40px;
-    width: 40px;
-    height: 40px;
-    margin-bottom: 20px;
-    color: #fff;
+    font-size: 30px;
+    width: 30px;
+    height: 30px;
+    margin-bottom: 15px;
+    color: #444;
 }
 
 .guide-card h3 {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .guide-card p {
-    font-size: 14px;
-    line-height: 1.6;
-    opacity: 0.6;
+    font-size: 13px;
+    line-height: 1.5;
+    opacity: 0.8;
 }
 
 .policy-footer {
-    border-top: 1px solid rgba(255,255,255,0.1);
-    padding-top: 20px;
-    font-size: 12px;
-    opacity: 0.5;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+    font-size: 11px;
+    opacity: 0.6;
 }
 
 .policy-footer a {
-    color: #fff;
+    color: #000;
     text-decoration: underline;
+    font-weight: 600;
 }
 
 .directory-divider {
     text-align: center;
     position: relative;
-    margin-bottom: 40px;
+    margin-bottom: 25px;
 }
 
 .directory-divider::before {
@@ -100,117 +129,134 @@
 .divider-text {
     position: relative;
     z-index: 2;
-    background: #fff;
-    padding: 0 20px;
+    background: #fdfdfd;
+    padding: 0 15px;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    font-size: 12px;
+    letter-spacing: 1.5px;
+    font-size: 11px;
     color: #999;
 }
 
 /* Hybrid Layout Styles */
 .directory-list-header {
     display: grid;
-    grid-template-columns: 180px 1fr 200px 150px 200px;
-    padding: 15px 30px;
-    background: #f9f9f9;
-    border-radius: 10px;
-    margin-bottom: 15px;
+    grid-template-columns: 160px 1fr 220px 140px 180px;
+    padding: 12px 25px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    margin-bottom: 10px;
     font-weight: 800;
     text-transform: uppercase;
-    font-size: 11px;
-    color: #666;
+    font-size: 10px;
+    color: #777;
     letter-spacing: 1px;
 }
 
 .member-row {
     display: grid;
-    grid-template-columns: 180px 1fr 200px 150px 200px;
+    grid-template-columns: 160px 1fr 220px 140px 180px;
     align-items: center;
-    padding: 20px 30px;
+    padding: 15px 25px;
     background: #fff;
-    border: 1px solid #eee;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    transition: all 0.3s ease;
+    border: 1px solid #efefef;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
 }
 
 .member-row:hover {
-    border-color: #000;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-    transform: translateX(5px);
+    border-color: #ddd;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.03);
 }
 
 .col-category .member-category {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 800;
     text-transform: uppercase;
-    background: #000;
-    color: #fff;
-    padding: 4px 10px;
-    border-radius: 4px;
+    background: #f0f0f0;
+    color: #555;
+    padding: 3px 8px;
+    border-radius: 3px;
+    border: 1px solid #e0e0e0;
 }
 
 .col-identity {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
 }
 
 .col-identity img {
     border-radius: 50%;
-    border: 2px solid #eee;
+    border: 1.5px solid #f0f0f0;
+    width: 36px;
+    height: 36px;
 }
 
 .member-name {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 800;
     margin: 0;
+    color: #1a1a1a;
 }
 
 .col-field {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
-    color: #444;
+    color: #555;
 }
 
 .col-serial {
     font-family: monospace;
     font-weight: 700;
-    color: #888;
-    font-size: 13px;
+    color: #999;
+    font-size: 12px;
 }
 
 .col-country {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+}
+
+/* Flag Element Optimization */
+.flag-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px; /* Increased scale */
+    height: 22px;
+    overflow: hidden;
+    border-radius: 3px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    background: #f9f9f9;
+    border: 1px solid #eee;
 }
 
 .country-flag {
-    width: 24px;
-    height: auto;
-    border-radius: 2px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-size: 20px; /* High-res emoji scale */
+    line-height: 1;
+    display: block;
 }
 
 .country-name {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
+    color: #444;
 }
 
 .load-more-container {
     text-align: center;
-    margin-top: 50px;
+    margin-top: 30px;
 }
 
 .wshc-load-more-btn {
-    background: #000;
-    color: #fff;
-    border: none;
-    padding: 15px 40px;
-    border-radius: 30px;
+    background: #fff;
+    color: #1a1a1a;
+    border: 1.5px solid #eee;
+    padding: 12px 30px;
+    border-radius: 25px;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -218,31 +264,35 @@
     transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    font-size: 12px;
 }
 
 .wshc-load-more-btn:hover {
-    background: #333;
-    transform: scale(1.05);
+    border-color: #999;
+    background: #f9f9f9;
 }
 
 .wshc-load-more-btn:disabled {
-    background: #ccc;
+    opacity: 0.5;
     cursor: not-allowed;
 }
 
 .no-members-notice {
     text-align: center;
-    padding: 60px;
-    background: #f9f9f9;
-    border-radius: 20px;
-    border: 2px dashed #ddd;
+    padding: 40px;
+    background: #fdfdfd;
+    border-radius: 15px;
+    border: 2px dashed #eee;
+    color: #aaa;
 }
 
 .no-members-notice .dashicons {
-    font-size: 50px;
-    width: 50px;
-    height: 50px;
-    margin-bottom: 20px;
-    color: #ccc;
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 15px;
 }
+
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
