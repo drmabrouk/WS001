@@ -74,9 +74,35 @@ class Schema {
             KEY user_id (user_id)
         ) $charset_collate;";
 
+        $table_research = $wpdb->prefix . 'wshc_research_submissions';
+        $sql_research = "CREATE TABLE $table_research (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) NOT NULL,
+            title varchar(255) NOT NULL,
+            abstract text NOT NULL,
+            keywords text,
+            affiliations text,
+            doc_type varchar(50) NOT NULL,
+            prior_registry text,
+            manuscript_url text NOT NULL,
+            supplementary_url text,
+            serial_id varchar(50),
+            status varchar(30) DEFAULT 'pending' NOT NULL,
+            reviewer_id bigint(20) DEFAULT 0,
+            admin_notes text,
+            policy_agreed tinyint(1) DEFAULT 0,
+            download_count int(11) DEFAULT 0,
+            published_at datetime,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY  (id),
+            KEY user_id (user_id),
+            KEY serial_id (serial_id)
+        ) $charset_collate;";
+
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql_otp);
         dbDelta($sql_logs);
         dbDelta($sql_apps);
+        dbDelta($sql_research);
     }
 }

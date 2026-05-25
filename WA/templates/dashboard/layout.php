@@ -87,6 +87,12 @@ $design = get_option('wshc_design_settings', [
                         </a>
                     </li>
                     <li>
+                        <a href="<?php echo esc_url(add_query_arg('section', 'research-submissions', $base_url)); ?>"
+                           class="nav-link <?php echo $current_section === 'research-submissions' ? 'active' : ''; ?>">
+                            <span class="nav-icon dashicons dashicons-media-document"></span> Research Submissions
+                        </a>
+                    </li>
+                    <li>
                         <a href="<?php echo esc_url(add_query_arg('section', 'settings-system', $base_url)); ?>"
                            class="nav-link <?php echo $current_section === 'settings-system' ? 'active' : ''; ?>">
                             <span class="nav-icon dashicons dashicons-admin-settings"></span> Settings
@@ -99,6 +105,14 @@ $design = get_option('wshc_design_settings', [
                             <span class="nav-icon dashicons dashicons-admin-users"></span> My Account
                         </a>
                     </li>
+                    <?php if (current_user_can('wshc_member') || current_user_can('administrator')) : ?>
+                        <li>
+                            <a href="<?php echo esc_url(add_query_arg('section', 'my-published-works', $base_url)); ?>"
+                               class="nav-link <?php echo $current_section === 'my-published-works' ? 'active' : ''; ?>">
+                                <span class="nav-icon dashicons dashicons-portfolio"></span> My Published Works
+                            </a>
+                        </li>
+                    <?php endif; ?>
                     <?php if (current_user_can('wshc_visitor') || current_user_can('subscriber')) : ?>
                         <li>
                             <a href="<?php echo esc_url(add_query_arg('section', 'info-apply', $base_url)); ?>"
@@ -314,7 +328,23 @@ $design = get_option('wshc_design_settings', [
                         </div>
                     </div>
                 </div>
+                <!-- Research Submissions Log (Admin) -->
+                <div id="section-research-submissions" class="dashboard-section <?php echo $current_section === 'research-submissions' ? '' : 'hidden'; ?>">
+                    <h1 class="section-title">SCIENTIFIC RESEARCH SUBMISSIONS LOG</h1>
+                    <div id="admin-research-log-container"></div>
+                </div>
             <?php endif; ?>
+
+            <!-- My Published Works (Author) -->
+            <div id="section-my-published-works" class="dashboard-section <?php echo $current_section === 'my-published-works' ? '' : 'hidden'; ?>">
+                <div class="user-management-header">
+                    <h1 class="section-title">MY PUBLISHED WORKS</h1>
+                    <button class="wshc-auth-btn" id="open-research-submission" style="width: auto;">
+                        <span class="dashicons dashicons-plus"></span> Submit New Research
+                    </button>
+                </div>
+                <div id="author-research-ledger-container"></div>
+            </div>
 
             <!-- Visitor Information & Apply Section -->
             <div id="section-info-apply" class="dashboard-section <?php echo ($current_section === 'info-apply' || (empty($current_section) && (current_user_can('wshc_visitor') || current_user_can('subscriber')))) ? '' : 'hidden'; ?>">
@@ -469,7 +499,7 @@ $design = get_option('wshc_design_settings', [
                             </div>
                             <div class="wshc-auth-grid">
                                 <div class="wshc-auth-form-group">
-                                    <label>Major/Field of Study</label>
+                                    <label>Field of Specialization</label>
                                     <input type="text" name="major" placeholder="e.g. Sports Medicine" required>
                                 </div>
                                 <div class="wshc-auth-form-group">
