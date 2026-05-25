@@ -1,0 +1,21 @@
+{
+    "name": "gshc/management-system",
+    "description": "The official professional management extension developed by the Global Council of Sport Health. This enterprise-level system provides advanced user control, real-time analytics, and secure administrative tools for the Global Council of Sport Health's digital ecosystem.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Global Council of Sport Health",
+            "email": "info@gshcouncil.org"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=7.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "WSHC\\": "includes/"
+        }
+    }
+}
