@@ -83,7 +83,7 @@
     flex-direction: column;
     align-items: flex-end;
     gap: 2px;
-    margin-right: 12px;
+    margin-right: 8px;
 }
 
 .user-avatar-wrap {
@@ -139,17 +139,18 @@
 }
 
 .settings-trigger-btn {
-    background: rgba(255,255,255,0.1);
+    background: none;
     color: var(--wshc-white);
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
+    width: auto;
+    height: auto;
+    border-radius: 0;
     border: none;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: var(--wshc-transition);
+    padding: 0;
 }
 
 .settings-trigger-btn .dashicons {
@@ -157,8 +158,7 @@
 }
 
 .nav-settings-dropdown:hover .settings-trigger-btn {
-    background: var(--wshc-white);
-    color: var(--wshc-black);
+    color: var(--wshc-gray-300);
 }
 
 .nav-settings-dropdown .dropdown-menu {
@@ -423,6 +423,11 @@
     text-align: left;
     border-bottom: 1px solid var(--wshc-gray-200);
     font-size: 13px;
+}
+
+.wshc-table.compact td {
+    padding: 8px 20px;
+    font-size: 11px;
 }
 
 .wshc-table th {

@@ -90,14 +90,14 @@ class DashboardManager {
 
         global $wpdb;
         $table = $wpdb->prefix . 'wshc_membership_applications';
-        $pending_apps = $wpdb->get_var("SELECT COUNT(*) FROM $table WHERE status = 'pending'");
+        $institutional_members = count(get_users(['role__in' => ['wshc_member', 'wshc_research_member', 'wshc_practitioner_member', 'wshc_fellowship_member', 'wshc_scientific_reviewer', 'wshc_programs_manager', 'wshc_regional_coordinator', 'wshc_secretary_general']]));
 
         return [
-            'total_users'     => $user_count['total_users'],
-            'suspended_users' => $suspended_count,
-            'active_users'    => $user_count['total_users'] - $suspended_count,
-            'pending_apps'    => $pending_apps,
-            'recent_logs'     => \WSHC\UserManagement\ActivityLogger::get_logs(null, 10),
+            'total_users'           => $user_count['total_users'],
+            'suspended_users'       => $suspended_count,
+            'active_users'          => $user_count['total_users'] - $suspended_count,
+            'institutional_members' => $institutional_members,
+            'recent_logs'           => \WSHC\UserManagement\ActivityLogger::get_logs(null, 10),
         ];
     }
 
