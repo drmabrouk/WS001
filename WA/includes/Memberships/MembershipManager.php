@@ -17,6 +17,8 @@ class MembershipManager {
         add_action('wp_ajax_wshc_delete_membership', [$this, 'delete_membership']);
         add_action('wp_ajax_wshc_get_application_details', [$this, 'get_application_details']);
         add_action('wp_ajax_wshc_send_clarification', [$this, 'send_clarification']);
+        add_action('wp_ajax_wshc_get_membership_data', [$this, 'get_membership_data']);
+        add_action('wp_ajax_wshc_save_membership_data', [$this, 'save_membership_data']);
     }
 
     /**
@@ -239,7 +241,7 @@ class MembershipManager {
                             <button class="action-btn view-user" data-id="<?php echo $user->ID; ?>" title="View Account Details" style="background:#444;">
                                 <span class="dashicons dashicons-visibility"></span>
                             </button>
-                            <button class="action-btn edit-user" data-id="<?php echo $user->ID; ?>" title="Edit Member Data" style="background:#007cba;">
+                            <button class="action-btn edit-membership-data" data-id="<?php echo $user->ID; ?>" title="Edit Member Data" style="background:#007cba;">
                                 <span class="dashicons dashicons-edit"></span>
                             </button>
                             <button class="action-btn toggle-status" data-id="<?php echo $user->ID; ?>" title="<?php echo $is_suspended ? 'Reactivate' : 'Temporarily Suspend'; ?>" style="background:<?php echo $is_suspended ? '#2e7d32' : '#f57c00'; ?>;">
@@ -319,6 +321,45 @@ class MembershipManager {
         \WSHC\UserManagement\ActivityLogger::log(get_current_user_id(), 'clarification_sent', "Sent clarification request to applicant ID: $app_id");
 
         wp_send_json_success(['message' => 'Clarification dispatch sent to applicant dashboard.']);
+    }
+
+    public function get_membership_data() {
+        check_ajax_referer('wshc_dashboard_nonce', 'nonce');
+        if (!current_user_can('administrator')) wp_send_json_error();
+
+        global $wpdb;
+        $user_id = intval($_POST['user_id']);
+        $table = $wpdb->prefix . 'wshc_membership_applications';
+        $data = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table WHERE user_id = %d AND status = 'approved' ORDER BY created_at DESC LIMIT 1", $user_id));
+
+        if (!$data) wp_send_json_error(['message' => 'No approved membership record found.']);
+        wp_send_json_success($data);
+    }
+
+    public function save_membership_data() {
+        check_ajax_referer('wshc_dashboard_nonce', 'nonce');
+        if (!current_user_can('administrator')) wp_send_json_error();
+
+        global $wpdb;
+        $user_id = intval($_POST['user_id']);
+        $table = $wpdb->prefix . 'wshc_membership_applications';
+
+        $data = [
+            'full_name'      => sanitize_text_field($_POST['full_name']),
+            'nationality'    => sanitize_text_field($_POST['nationality']),
+            'degree'         => sanitize_text_field($_POST['degree']),
+            'major'          => sanitize_text_field($_POST['major']),
+            'institution'    => sanitize_text_field($_POST['institution']),
+            'job_title'      => sanitize_text_field($_POST['job_title']),
+            'employer'       => sanitize_text_field($_POST['employer']),
+            'license_number' => sanitize_text_field($_POST['license_number']),
+        ];
+
+        $wpdb->update($table, $data, ['user_id' => $user_id, 'status' => 'approved']);
+
+        \WSHC\UserManagement\ActivityLogger::log(get_current_user_id(), 'membership_update', "Admin updated membership data for user ID: $user_id");
+
+        wp_send_json_success(['message' => 'Membership record updated successfully.']);
     }
 
     private function generate_membership_id() {

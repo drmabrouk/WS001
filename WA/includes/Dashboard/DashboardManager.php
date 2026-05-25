@@ -90,7 +90,7 @@ class DashboardManager {
 
         global $wpdb;
         $table = $wpdb->prefix . 'wshc_membership_applications';
-        $institutional_members = count(get_users(['role__in' => ['wshc_member', 'wshc_research_member', 'wshc_practitioner_member', 'wshc_fellowship_member', 'wshc_scientific_reviewer', 'wshc_programs_manager', 'wshc_regional_coordinator', 'wshc_secretary_general']]));
+        $institutional_members = $wpdb->get_var("SELECT COUNT(*) FROM $table WHERE status = 'approved'");
 
         return [
             'total_users'           => $user_count['total_users'],
