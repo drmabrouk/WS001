@@ -11,6 +11,8 @@ class MembershipManager {
      */
     public function init() {
         add_shortcode('wshc_members_directory', [$this, 'render_public_directory']);
+        add_action('wp_ajax_wshc_load_more_members', [$this, 'load_more_members']);
+        add_action('wp_ajax_nopriv_wshc_load_more_members', [$this, 'load_more_members']);
         add_action('wp_ajax_wshc_submit_membership_app', [$this, 'submit_application']);
         add_action('wp_ajax_wshc_list_applications', [$this, 'list_applications']);
         add_action('wp_ajax_wshc_process_application', [$this, 'process_application']);
@@ -364,19 +366,97 @@ class MembershipManager {
     }
 
     /**
-     * Render the public members directory.
+     * Load more members via AJAX.
      */
-    public function render_public_directory() {
+    public function load_more_members() {
+        $offset = isset($_POST['offset']) ? intval($_POST['offset']) : 10;
+
         global $wpdb;
         $table = $wpdb->prefix . 'wshc_membership_applications';
 
-        // Fetch approved members joined with their membership ID
         $query = $wpdb->prepare("
             SELECT a.*, m.meta_value as membership_id
             FROM $table a
             LEFT JOIN $wpdb->usermeta m ON a.user_id = m.user_id AND m.meta_key = 'wshc_membership_id'
             WHERE a.status = 'approved'
             ORDER BY a.created_at DESC
+            LIMIT %d, 10
+        ", $offset);
+
+        $members_raw = $wpdb->get_results($query);
+
+        if (empty($members_raw)) {
+            wp_send_json_success(['html' => '', 'count' => 0]);
+        }
+
+        $role_names = [
+            'wshc_member'               => 'Official Member',
+            'wshc_research_member'      => 'Research Member',
+            'wshc_practitioner_member'  => 'Practitioner Member',
+            'wshc_fellowship_member'    => 'Fellowship Member',
+            'wshc_scientific_reviewer'  => 'Scientific Reviewer',
+            'wshc_programs_manager'     => 'Programs Manager',
+            'wshc_regional_coordinator' => 'Regional Coordinator',
+            'wshc_secretary_general'    => 'Secretary-General',
+        ];
+
+        ob_start();
+        foreach ($members_raw as $member) :
+            // Prepend Dr. logic
+            $name = $member->full_name;
+            $degree = $member->degree;
+            if ($degree && (stripos($degree, 'PhD') !== false || stripos($degree, 'Doctor') !== false || stripos($degree, 'MD') !== false)) {
+                if (stripos($name, 'Dr.') === false) {
+                    $name = 'Dr. ' . $name;
+                }
+            }
+
+            $user_data = get_userdata($member->user_id);
+            $primary_role = !empty($user_data->roles) ? $user_data->roles[0] : '';
+            $category = isset($role_names[$primary_role]) ? $role_names[$primary_role] : 'Council Member';
+            $flag_emoji = \WSHC\Utils\CountryPicker::get_flag($member->nationality);
+            ?>
+            <div class="member-row">
+                <div class="col-category">
+                    <span class="member-category"><?php echo esc_html($category); ?></span>
+                </div>
+                <div class="col-identity">
+                    <?php echo get_avatar($member->user_id, 40); ?>
+                    <h2 class="member-name"><?php echo esc_html($name); ?></h2>
+                </div>
+                <div class="col-field">
+                    <span class="field-text"><?php echo esc_html($member->major); ?></span>
+                </div>
+                <div class="col-serial">
+                    <span class="serial-text">#<?php echo esc_html($member->membership_id); ?></span>
+                </div>
+                <div class="col-country">
+                    <span class="country-flag"><?php echo $flag_emoji; ?></span>
+                    <span class="country-name"><?php echo esc_html($member->nationality); ?></span>
+                </div>
+            </div>
+            <?php
+        endforeach;
+        $html = ob_get_clean();
+
+        wp_send_json_success(['html' => $html, 'count' => count($members_raw)]);
+    }
+
+    /**
+     * Render the public members directory.
+     */
+    public function render_public_directory() {
+        global $wpdb;
+        $table = $wpdb->prefix . 'wshc_membership_applications';
+
+        // Fetch FIRST 10 approved members (descending order)
+        $query = $wpdb->prepare("
+            SELECT a.*, m.meta_value as membership_id
+            FROM $table a
+            LEFT JOIN $wpdb->usermeta m ON a.user_id = m.user_id AND m.meta_key = 'wshc_membership_id'
+            WHERE a.status = 'approved'
+            ORDER BY a.created_at DESC
+            LIMIT 0, 10
         ");
         $members_raw = $wpdb->get_results($query);
 
@@ -392,8 +472,12 @@ class MembershipManager {
             return $member;
         }, $members_raw);
 
-        // Enqueue styles
+        // Enqueue styles & scripts
         wp_enqueue_style('wshc-directory-style', WSHC_PLUGIN_URL . 'assets/css/directory.css', [], '1.0.0');
+        wp_enqueue_script('wshc-directory-js', WSHC_PLUGIN_URL . 'assets/js/directory.js', ['jquery'], '1.0.0', true);
+        wp_localize_script('wshc-directory-js', 'wshc_directory_obj', [
+            'ajaxurl' => admin_url('admin-ajax.php'),
+        ]);
 
         ob_start();
         $template_path = WSHC_PLUGIN_DIR . 'templates/portal/members-directory.php';
