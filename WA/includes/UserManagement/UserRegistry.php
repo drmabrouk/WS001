@@ -57,6 +57,18 @@ class UserRegistry {
         $suspended = get_user_meta($user->ID, 'wshc_suspended', true);
         $role = !empty($user->roles) ? ucwords(str_replace(['_', 'wshc'], [' ', 'WSHC'], $user->roles[0])) : 'User';
 
+        // Username Cooldown logic for self-editing
+        $cooldown_msg = '';
+        if (get_current_user_id() === $user->ID) {
+            $last_change = get_user_meta($user->ID, 'wshc_last_username_change', true);
+            if ($last_change) {
+                $days_passed = floor((time() - $last_change) / 86400);
+                if ($days_passed < 30) {
+                    $cooldown_msg = "Username security lock active. Next adjustment available in " . (30 - $days_passed) . " days.";
+                }
+            }
+        }
+
         wp_send_json_success([
             'ID'         => $user->ID,
             'user_login' => $user->user_login,
@@ -65,7 +77,8 @@ class UserRegistry {
             'last_name'  => $user->last_name,
             'role'       => $role,
             'joined'     => date('M d, Y', strtotime($user->user_registered)),
-            'status'     => $suspended ? 'Suspended' : 'Active'
+            'status'     => $suspended ? 'Suspended' : 'Active',
+            'username_cooldown' => $cooldown_msg
         ]);
     }
 
@@ -151,10 +164,35 @@ class UserRegistry {
 
         if ($user_id) {
             $user_data['ID'] = $user_id;
+
+            // Handle Username Cooldown for self-editing
+            if (get_current_user_id() === $user_id) {
+                $old_user = get_userdata($user_id);
+                if ($old_user->user_login !== $username) {
+                    $last_change = get_user_meta($user_id, 'wshc_last_username_change', true);
+                    if ($last_change && (time() - $last_change) < (30 * 86400)) {
+                        wp_send_json_error(['message' => 'Username cannot be changed yet due to security cooldown.']);
+                    }
+                    update_user_meta($user_id, 'wshc_last_username_change', time());
+                }
+            }
+
             if (!empty($password)) {
                 $user_data['user_pass'] = $password;
             }
             $result = wp_update_user($user_data);
+
+            // Handle Avatar Upload
+            if (!empty($_FILES['profile_avatar']['name'])) {
+                require_once(ABSPATH . 'wp-admin/includes/image.php');
+                require_once(ABSPATH . 'wp-admin/includes/file.php');
+                require_once(ABSPATH . 'wp-admin/includes/media.php');
+
+                $attach_id = media_handle_upload('profile_avatar', 0);
+                if (!is_wp_error($attach_id)) {
+                    update_user_meta($user_id, 'wshc_avatar_id', $attach_id);
+                }
+            }
         } else {
             $user_data['user_pass'] = $password;
             $result = wp_insert_user($user_data);

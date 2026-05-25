@@ -5,6 +5,18 @@ jQuery(document).ready(function($) {
         sidebar.toggleClass('collapsed');
     });
 
+    // Settings Dropdown - Hover Persistence
+    let settingsTimeout;
+    $('.nav-settings-dropdown').on('mouseenter', function() {
+        clearTimeout(settingsTimeout);
+        $(this).find('.dropdown-menu').stop(true, true).fadeIn(200);
+    }).on('mouseleave', function() {
+        const $menu = $(this).find('.dropdown-menu');
+        settingsTimeout = setTimeout(function() {
+            $menu.stop(true, true).fadeOut(200);
+        }, 2000); // 2-second hover persistence
+    });
+
     // Password Toggle (Universal)
     $(document).on('click', '.password-toggle', function() {
         const input = $(this).siblings('input');
@@ -648,6 +660,59 @@ jQuery(document).ready(function($) {
         triggerEditUser($(this).data('id'));
     });
 
+    $(document).on('click', '.edit-membership-data', function(e) {
+        e.preventDefault();
+        const userId = $(this).data('id');
+
+        $.ajax({
+            url: wshc_dashboard_obj.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'wshc_get_membership_data',
+                nonce: wshc_dashboard_obj.nonce,
+                user_id: userId
+            },
+            success: function(response) {
+                if (response.success) {
+                    const data = response.data;
+                    $('#membership-form-user-id').val(userId);
+                    $('#membership-form-name').val(data.full_name);
+                    $('#membership-form-nationality').val(data.nationality);
+                    $('#membership-form-degree').val(data.degree);
+                    $('#membership-form-major').val(data.major);
+                    $('#membership-form-institution').val(data.institution);
+                    $('#membership-form-job').val(data.job_title);
+                    $('#membership-form-employer').val(data.employer);
+                    $('#membership-form-license').val(data.license_number);
+                    $('#membership-data-edit-modal').removeClass('hidden').hide().fadeIn(300);
+                }
+            }
+        });
+    });
+
+    $(document).on('submit', '#wshc-membership-data-form', function(e) {
+        e.preventDefault();
+        const btn = $(this).find('button[type="submit"]');
+        const formData = $(this).serialize();
+        btn.prop('disabled', true).text('SAVING...');
+
+        $.ajax({
+            url: wshc_dashboard_obj.ajaxurl,
+            type: 'POST',
+            data: formData + '&action=wshc_save_membership_data&nonce=' + wshc_dashboard_obj.nonce,
+            success: function(response) {
+                btn.prop('disabled', false).text('Save Changes');
+                if (response.success) {
+                    $('#membership-data-edit-modal').addClass('hidden');
+                    loadMembershipDirectory();
+                    showNotification('UPDATED', 'Membership record has been successfully modified.');
+                } else {
+                    alert(response.data.message);
+                }
+            }
+        });
+    });
+
     $(document).on('click', '.edit-my-profile, .edit-my-profile-link', function(e) {
         e.preventDefault();
         const userId = wshc_dashboard_obj.current_user_id;
@@ -666,10 +731,36 @@ jQuery(document).ready(function($) {
                     $('#my-form-username').val(u.user_login);
                     $('#my-form-email').val(u.user_email);
                     $('#my-form-password').val('');
+                    $('#my-form-confirm-password').val('');
+
+                    // Cooldown Notice
+                    if (u.username_cooldown) {
+                        $('#username-cooldown-notice').text(u.username_cooldown).removeClass('hidden');
+                        $('#my-form-username').prop('disabled', true);
+                    } else {
+                        $('#username-cooldown-notice').addClass('hidden');
+                        $('#my-form-username').prop('disabled', false);
+                    }
+
                     $('#my-profile-modal').removeClass('hidden').hide().fadeIn(300);
                 }
             }
         });
+    });
+
+    $('#profile-avatar-trigger').on('click', function() {
+        $('#profile-avatar-input').click();
+    });
+
+    $('#profile-avatar-input').on('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('#profile-avatar-trigger img').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(file);
+        }
     });
 
     $(document).on('click', '#request-deletion-btn', function() {
@@ -704,13 +795,24 @@ jQuery(document).ready(function($) {
         }
 
         const btn = $(this).find('button[type="submit"]');
-        const formData = $(this).serialize();
+        const formData = new FormData(this);
+        formData.append('action', 'wshc_save_user');
+        formData.append('user_id', wshc_dashboard_obj.current_user_id);
+        formData.append('nonce', wshc_dashboard_obj.nonce);
+
+        const avatarFile = $('#profile-avatar-input')[0].files[0];
+        if (avatarFile) {
+            formData.append('profile_avatar', avatarFile);
+        }
+
         btn.prop('disabled', true).text('UPDATING...');
 
         $.ajax({
             url: wshc_dashboard_obj.ajaxurl,
             type: 'POST',
-            data: formData + '&action=wshc_save_user&user_id=' + wshc_dashboard_obj.current_user_id + '&nonce=' + wshc_dashboard_obj.nonce,
+            data: formData,
+            processData: false,
+            contentType: false,
             success: function(response) {
                 btn.prop('disabled', false).text('UPDATE PROFILE');
                 if (response.success) {

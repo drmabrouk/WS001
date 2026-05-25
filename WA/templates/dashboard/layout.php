@@ -41,15 +41,15 @@ $design = get_option('wshc_design_settings', [
             <span class="system-title"><?php echo esc_html($system_title); ?></span>
         </div>
         <div class="nav-right">
-            <div class="user-profile-stack" style="margin-right: 8px;">
-                <span class="user-name"><?php echo esc_html($current_user->display_name); ?></span>
-                <span class="role-capsule rank-capsule"><?php echo esc_html($role_label); ?></span>
-            </div>
             <div class="user-avatar-wrap" style="margin-right: 0;">
                 <?php echo get_avatar($current_user->ID, 40); ?>
             </div>
+            <div class="user-profile-stack" style="margin-right: 5px;">
+                <span class="user-name"><?php echo esc_html($current_user->display_name); ?></span>
+                <span class="role-capsule rank-capsule"><?php echo esc_html($role_label); ?></span>
+            </div>
             <div class="nav-settings-dropdown">
-                <button class="settings-trigger-btn circular" title="Account Settings" style="background: none; border: none; padding-left: 5px;">
+                <button class="settings-trigger-btn circular" title="Account Settings" style="background: none; border: none; padding-left: 0;">
                     <span class="dashicons dashicons-admin-generic"></span>
                 </button>
                 <ul class="dropdown-menu">
@@ -140,7 +140,7 @@ $design = get_option('wshc_design_settings', [
                         <div class="stat-card admins">
                             <div class="stat-icon dashicons dashicons-awards"></div>
                             <div class="stat-info">
-                                <span class="stat-label">Institutional Members</span>
+                                <span class="stat-label">Approved Memberships</span>
                                 <span class="stat-value"><?php echo number_format($stats['institutional_members'] ?? 0); ?></span>
                             </div>
                         </div>
@@ -789,11 +789,87 @@ $design = get_option('wshc_design_settings', [
     </div>
 </div>
 
+<!-- Edit Membership Data Modal -->
+<div id="membership-data-edit-modal" class="wshc-modal hidden">
+    <div class="wshc-modal-content" style="max-width: 600px;">
+        <h2 style="border-bottom: 2px solid #eee; padding-bottom: 15px;">EDIT MEMBERSHIP DATA</h2>
+        <form id="wshc-membership-data-form">
+            <input type="hidden" name="user_id" id="membership-form-user-id">
+
+            <div class="wshc-auth-grid">
+                <div class="wshc-auth-form-group">
+                    <label>Full Legal Name</label>
+                    <input type="text" name="full_name" id="membership-form-name" required>
+                </div>
+                <div class="wshc-auth-form-group">
+                    <label>Nationality</label>
+                    <select name="nationality" id="membership-form-nationality" class="searchable-country" required>
+                        <?php echo \WSHC\Utils\CountryPicker::render_options(); ?>
+                    </select>
+                </div>
+            </div>
+
+            <div class="wshc-auth-grid">
+                <div class="wshc-auth-form-group">
+                    <label>Highest Degree</label>
+                    <select name="degree" id="membership-form-degree" required>
+                        <option value="Ph.D.">Ph.D.</option>
+                        <option value="Master's">Master's</option>
+                        <option value="Bachelor's">Bachelor's</option>
+                        <option value="Higher Diploma">Higher Diploma</option>
+                    </select>
+                </div>
+                <div class="wshc-auth-form-group">
+                    <label>Major/Field of Study</label>
+                    <input type="text" name="major" id="membership-form-major" required>
+                </div>
+            </div>
+
+            <div class="wshc-auth-form-group">
+                <label>University/Institution</label>
+                <input type="text" name="institution" id="membership-form-institution" required>
+            </div>
+
+            <div class="wshc-auth-grid">
+                <div class="wshc-auth-form-group">
+                    <label>Job Title</label>
+                    <input type="text" name="job_title" id="membership-form-job" required>
+                </div>
+                <div class="wshc-auth-form-group">
+                    <label>Employer</label>
+                    <input type="text" name="employer" id="membership-form-employer" required>
+                </div>
+            </div>
+
+            <div class="wshc-auth-form-group">
+                <label>Professional License Number</label>
+                <input type="text" name="license_number" id="membership-form-license">
+            </div>
+
+            <div class="modal-actions" style="display: flex; gap: 15px; margin-top: 25px;">
+                <button type="submit" class="wshc-auth-btn" style="flex: 1;">Save Changes</button>
+                <button type="button" class="wshc-auth-btn close-modal" style="background: #666; flex: 1;">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- My Profile Edit Modal -->
 <div id="my-profile-modal" class="wshc-modal hidden">
     <div class="wshc-modal-content">
-        <h2>EDIT PROFILE DATA</h2>
+        <div class="modal-header-centered" style="text-align: center; margin-bottom: 30px;">
+            <div class="profile-avatar-upload" id="profile-avatar-trigger" style="position: relative; display: inline-block; cursor: pointer;">
+                <?php echo get_avatar($current_user->ID, 80); ?>
+                <div class="upload-overlay" style="position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); border-radius:50%; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.3s;">
+                    <span class="dashicons dashicons-camera" style="color:#fff; font-size:30px; width:30px; height:30px;"></span>
+                </div>
+            </div>
+            <input type="file" id="profile-avatar-input" style="display:none;" accept="image/*">
+            <h2 style="margin: 15px 0 5px;"><?php echo esc_html($current_user->display_name); ?></h2>
+            <p style="font-size: 12px; color: #666; text-transform: uppercase; font-weight: 800;">Edit Profile Data</p>
+        </div>
         <form id="wshc-my-profile-form">
+            <div id="username-cooldown-notice" class="hidden" style="background: #fff8e1; border: 1px solid #ffe082; padding: 10px; border-radius: 6px; margin-bottom: 20px; font-size: 11px; color: #f57c00; font-weight: 600;"></div>
             <div class="wshc-auth-grid">
                 <div class="wshc-auth-form-group">
                     <label>Username</label>
@@ -821,13 +897,13 @@ $design = get_option('wshc_design_settings', [
                 </div>
             </div>
 
-            <div class="modal-actions">
-                <button type="submit" class="wshc-auth-btn">Update Profile</button>
-                <button type="button" class="wshc-auth-btn close-modal" style="background: #666;">Cancel</button>
+            <div class="modal-actions" style="display: flex; gap: 15px;">
+                <button type="submit" class="wshc-auth-btn" style="flex: 1;">Update Profile</button>
+                <button type="button" class="wshc-auth-btn close-modal" style="background: #666; flex: 1;">Cancel</button>
             </div>
 
-            <div style="margin-top: 20px; text-align: center;">
-                <a href="#" id="request-deletion-btn" style="color: #d32f2f; font-size: 11px; text-decoration: none;">Request Account Deletion</a>
+            <div style="margin-top: 25px; text-align: center; border-top: 1px solid #eee; padding-top: 15px;">
+                <a href="#" id="request-deletion-btn" style="color: #d32f2f; font-size: 11px; text-decoration: none; font-weight: 700;">Request Account Deletion</a>
             </div>
         </form>
     </div>
