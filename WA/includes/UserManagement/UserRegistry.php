@@ -54,12 +54,18 @@ class UserRegistry {
             wp_send_json_error(['message' => 'User not found.']);
         }
 
+        $suspended = get_user_meta($user->ID, 'wshc_suspended', true);
+        $role = !empty($user->roles) ? ucwords(str_replace(['_', 'wshc'], [' ', 'WSHC'], $user->roles[0])) : 'User';
+
         wp_send_json_success([
             'ID'         => $user->ID,
             'user_login' => $user->user_login,
             'user_email' => $user->user_email,
             'first_name' => $user->first_name,
             'last_name'  => $user->last_name,
+            'role'       => $role,
+            'joined'     => date('M d, Y', strtotime($user->user_registered)),
+            'status'     => $suspended ? 'Suspended' : 'Active'
         ]);
     }
 

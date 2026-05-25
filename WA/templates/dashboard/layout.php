@@ -7,7 +7,32 @@ $base_url = home_url('/id');
 // Dynamic Branding
 $admin_roles = ['administrator', 'wshc_secretary_general', 'wshc_regional_coordinator', 'wshc_programs_manager'];
 $system_title = in_array($roles[0], $admin_roles) ? 'Management System' : 'MY ACCOUNT';
+
+// Inject Custom Design Settings
+$design = get_option('wshc_design_settings', [
+    'nav_bg' => '#000000',
+    'sidebar_bg' => '#ffffff',
+    'accent_color' => '#000000',
+    'canvas_bg' => '#f5f5f5',
+    'font_family' => "'Inter', sans-serif",
+    'base_font_size' => 14
+]);
 ?>
+<style>
+    :root {
+        --wshc-black: <?php echo esc_attr($design['nav_bg']); ?>;
+        --wshc-sidebar-bg: <?php echo esc_attr($design['sidebar_bg']); ?>;
+        --wshc-accent: <?php echo esc_attr($design['accent_color']); ?>;
+        --wshc-bg: <?php echo esc_attr($design['canvas_bg']); ?>;
+    }
+    .wshc-dashboard-wrapper {
+        font-family: <?php echo $design['font_family']; ?> !important;
+        font-size: <?php echo intval($design['base_font_size']); ?>px !important;
+    }
+    .wshc-top-nav { background: var(--wshc-black) !important; }
+    .wshc-sidebar { background: var(--wshc-sidebar-bg) !important; }
+    .wshc-sidebar li a.active, .wshc-sidebar li a:hover { border-left-color: var(--wshc-accent) !important; }
+</style>
 <div class="wshc-dashboard-wrapper">
     <!-- Top Navbar -->
     <nav class="wshc-top-nav">
@@ -184,8 +209,44 @@ $system_title = in_array($roles[0], $admin_roles) ? 'Management System' : 'MY AC
                     <div class="settings-tab-content">
                         <div id="tab-design-settings" class="settings-pane active">
                             <div class="content-panel">
-                                <h3>Design Configuration</h3>
-                                <p>Configure the visual appearance and branding of the management system.</p>
+                                <h3>Design Customizer</h3>
+                                <div class="wshc-auth-grid">
+                                    <div class="wshc-auth-form-group">
+                                        <label>Top Navbar Background</label>
+                                        <input type="color" id="design-nav-bg" value="<?php echo esc_attr($design['nav_bg']); ?>">
+                                    </div>
+                                    <div class="wshc-auth-form-group">
+                                        <label>Sidebar Background</label>
+                                        <input type="color" id="design-sidebar-bg" value="<?php echo esc_attr($design['sidebar_bg']); ?>">
+                                    </div>
+                                </div>
+                                <div class="wshc-auth-grid">
+                                    <div class="wshc-auth-form-group">
+                                        <label>Accent / Highlight Color</label>
+                                        <input type="color" id="design-accent" value="<?php echo esc_attr($design['accent_color']); ?>">
+                                    </div>
+                                    <div class="wshc-auth-form-group">
+                                        <label>System Canvas Background</label>
+                                        <input type="color" id="design-canvas-bg" value="<?php echo esc_attr($design['canvas_bg']); ?>">
+                                    </div>
+                                </div>
+                                <div class="wshc-auth-grid">
+                                    <div class="wshc-auth-form-group">
+                                        <label>Global Font Family</label>
+                                        <select id="design-font">
+                                            <option value="'Inter', sans-serif" <?php selected($design['font_family'], "'Inter', sans-serif"); ?>>Inter (Default)</option>
+                                            <option value="'Roboto', sans-serif" <?php selected($design['font_family'], "'Roboto', sans-serif"); ?>>Roboto</option>
+                                            <option value="'Open Sans', sans-serif" <?php selected($design['font_family'], "'Open Sans', sans-serif"); ?>>Open Sans</option>
+                                            <option value="'Lato', sans-serif" <?php selected($design['font_family'], "'Lato', sans-serif"); ?>>Lato</option>
+                                            <option value="Georgia, serif" <?php selected($design['font_family'], "Georgia, serif"); ?>>Georgia</option>
+                                        </select>
+                                    </div>
+                                    <div class="wshc-auth-form-group">
+                                        <label>Base Font Size (px)</label>
+                                        <input type="number" id="design-font-size" value="<?php echo intval($design['base_font_size']); ?>" min="12" max="20">
+                                    </div>
+                                </div>
+                                <button id="save-design-settings" class="wshc-auth-btn" style="width: auto; margin-top: 20px;">Apply Visual Changes</button>
                             </div>
                         </div>
                         <div id="tab-auth-config" class="settings-pane hidden">
@@ -335,13 +396,19 @@ $system_title = in_array($roles[0], $admin_roles) ? 'Management System' : 'MY AC
                                 </div>
                                 <div class="wshc-auth-form-group">
                                     <label>Nationality</label>
-                                    <input type="text" name="nationality" placeholder="Country of Nationality" required>
+                                    <select name="nationality" class="searchable-country" required>
+                                        <option value="" disabled selected>Select Country of Nationality</option>
+                                        <?php echo \WSHC\Utils\CountryPicker::render_options(); ?>
+                                    </select>
                                 </div>
                             </div>
                             <div class="wshc-auth-grid">
                                 <div class="wshc-auth-form-group">
                                     <label>Country of Residence</label>
-                                    <input type="text" name="country_residence" required>
+                                    <select name="country_residence" class="searchable-country" required>
+                                        <option value="" disabled selected>Select Country of Residence</option>
+                                        <?php echo \WSHC\Utils\CountryPicker::render_options(); ?>
+                                    </select>
                                 </div>
                                 <div class="wshc-auth-form-group">
                                     <label>City of Residence</label>
@@ -426,7 +493,10 @@ $system_title = in_array($roles[0], $admin_roles) ? 'Management System' : 'MY AC
                             <div class="wshc-auth-grid">
                                 <div class="wshc-auth-form-group">
                                     <label>Current Country of Work</label>
-                                    <input type="text" name="work_country" required>
+                                    <select name="work_country" class="searchable-country" required>
+                                        <option value="" disabled selected>Select Country of Work</option>
+                                        <?php echo \WSHC\Utils\CountryPicker::render_options(); ?>
+                                    </select>
                                 </div>
                                 <div class="wshc-auth-form-group">
                                     <label>State/Province/Department</label>
@@ -584,6 +654,17 @@ $system_title = in_array($roles[0], $admin_roles) ? 'Management System' : 'MY AC
                 <div class="wshc-auth-form-group">
                     <input type="email" name="email" id="form-email" placeholder="Email Address" required>
                 </div>
+            </div>
+
+            <div class="wshc-auth-grid">
+                <div class="wshc-auth-form-group">
+                    <label>Country of Nationality</label>
+                    <select name="country" id="form-country">
+                        <option value="" disabled selected>Select Country</option>
+                        <?php echo \WSHC\Utils\CountryPicker::render_options(); ?>
+                    </select>
+                </div>
+                <div class="wshc-auth-form-group"></div>
             </div>
 
             <div class="wshc-auth-grid">
