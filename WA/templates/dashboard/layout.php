@@ -44,12 +44,12 @@ $design = get_option('wshc_design_settings', [
             <div class="user-avatar-wrap" style="margin-right: 0;">
                 <?php echo get_avatar($current_user->ID, 40); ?>
             </div>
-            <div class="user-profile-stack" style="margin-right: 5px;">
+            <div class="user-profile-stack" style="margin-right: 0; align-items: flex-start;">
                 <span class="user-name"><?php echo esc_html($current_user->display_name); ?></span>
                 <span class="role-capsule rank-capsule"><?php echo esc_html($role_label); ?></span>
             </div>
             <div class="nav-settings-dropdown">
-                <button class="settings-trigger-btn circular" title="Account Settings" style="background: none; border: none; padding-left: 0;">
+                <button class="settings-trigger-btn circular" title="Account Settings" style="background: none !important; border: none !important; padding: 0; box-shadow: none !important; margin-left: 0;">
                     <span class="dashicons dashicons-admin-generic"></span>
                 </button>
                 <ul class="dropdown-menu">

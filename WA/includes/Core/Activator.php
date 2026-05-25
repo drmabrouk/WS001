@@ -102,6 +102,10 @@ class Activator {
                 'title'   => 'Verification Portal',
                 'content' => '[wshc_verification]',
             ],
+            'directory' => [
+                'title'   => 'Official Members Directory',
+                'content' => '[wshc_members_directory]',
+            ],
         ];
 
         foreach ($pages as $slug => $page_data) {
