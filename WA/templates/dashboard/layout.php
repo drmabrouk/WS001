@@ -40,7 +40,14 @@ $design = get_option('wshc_design_settings', [
             <button id="sidebar-toggle" class="sidebar-btn"><span class="dashicons dashicons-menu"></span></button>
             <span class="system-title"><?php echo esc_html($system_title); ?></span>
         </div>
-        <div class="nav-right" style="gap: 12px;">
+        <div class="nav-right" style="gap: 15px;">
+            <div class="user-profile-stack" style="align-items: flex-end; margin-right: -10px;">
+                <span class="user-name"><?php echo esc_html($current_user->display_name); ?></span>
+                <span class="role-capsule rank-capsule"><?php echo esc_html($role_label); ?></span>
+            </div>
+            <div class="user-avatar-wrap" style="margin: 0;">
+                <?php echo get_avatar($current_user->ID, 40); ?>
+            </div>
             <div class="nav-settings-dropdown">
                 <button class="settings-trigger-btn circular" title="Account Settings" style="background: none !important; border: none !important; padding: 0; box-shadow: none !important; margin-left: 0;">
                     <span class="dashicons dashicons-admin-generic"></span>
@@ -50,13 +57,9 @@ $design = get_option('wshc_design_settings', [
                     <li><a href="<?php echo wp_logout_url(home_url('/login')); ?>"><span class="dashicons dashicons-exit"></span> Logout</a></li>
                 </ul>
             </div>
-            <div class="user-profile-stack" style="align-items: flex-end;">
-                <span class="user-name"><?php echo esc_html($current_user->display_name); ?></span>
-                <span class="role-capsule rank-capsule"><?php echo esc_html($role_label); ?></span>
-            </div>
-            <div class="user-avatar-wrap" style="margin: 0;">
-                <?php echo get_avatar($current_user->ID, 40); ?>
-            </div>
+            <a href="<?php echo home_url(); ?>" class="nav-home-link" title="Return Home">
+                <span class="dashicons dashicons-admin-home"></span>
+            </a>
         </div>
     </nav>
 
@@ -286,11 +289,17 @@ $design = get_option('wshc_design_settings', [
 
                 <!-- Membership Hub Section (Unified) -->
                 <div id="section-membership-hub" class="dashboard-section <?php echo $current_section === 'membership-hub' ? '' : 'hidden'; ?>">
-                    <h1 class="section-title">MEMBERSHIPS & APPLICATIONS</h1>
+                    <div class="user-management-header" style="margin-bottom: 20px;">
+                        <h1 class="section-title">MEMBERSHIPS & APPLICATIONS</h1>
+                        <div class="search-filter" style="width: 300px;">
+                            <input type="text" id="membership-hub-search" placeholder="Search members or IDs..." style="padding: 8px 15px; font-size: 13px;">
+                        </div>
+                    </div>
 
                     <div class="settings-tabs">
                         <button class="settings-tab active" data-tab="hub-directory">Members Directory</button>
                         <button class="settings-tab" data-tab="hub-apps">Pending Applications</button>
+                        <button class="settings-tab" data-tab="hub-expired">Expired Memberships</button>
                     </div>
 
                     <div class="settings-tab-content">
@@ -299,6 +308,9 @@ $design = get_option('wshc_design_settings', [
                         </div>
                         <div id="tab-hub-apps" class="settings-pane hidden">
                             <div id="membership-apps-container"></div>
+                        </div>
+                        <div id="tab-hub-expired" class="settings-pane hidden">
+                            <div id="membership-expired-container"></div>
                         </div>
                     </div>
                 </div>
@@ -820,7 +832,7 @@ $design = get_option('wshc_design_settings', [
                     </select>
                 </div>
                 <div class="wshc-auth-form-group">
-                    <label>Major/Field of Study</label>
+                    <label>Field of Specialization</label>
                     <input type="text" name="major" id="membership-form-major" required>
                 </div>
             </div>

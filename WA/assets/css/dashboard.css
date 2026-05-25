@@ -158,6 +158,22 @@
     font-size: 20px;
 }
 
+.nav-home-link {
+    color: var(--wshc-white);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    transition: var(--wshc-transition);
+}
+
+.nav-home-link:hover {
+    color: var(--wshc-gray-300);
+}
+
+.nav-home-link .dashicons {
+    font-size: 20px;
+}
+
 .nav-settings-dropdown:hover .settings-trigger-btn {
     color: var(--wshc-gray-300);
 }

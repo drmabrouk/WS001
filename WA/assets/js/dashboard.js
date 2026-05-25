@@ -36,11 +36,17 @@ jQuery(document).ready(function($) {
     if (sectionId === 'section-user-management') {
         loadUserManagement();
     } else if (sectionId === 'section-membership-hub') {
-        loadMembershipDirectory();
-        loadMembershipApplications();
+        loadMembershipHub();
     }
 
-    function loadMembershipApplications() {
+    function loadMembershipHub() {
+        const search = $('#membership-hub-search').val();
+        loadMembershipDirectory(search);
+        loadMembershipApplications(search);
+        loadExpiredMemberships(search);
+    }
+
+    function loadMembershipApplications(search = '') {
         const container = $('#membership-apps-container');
         container.css('opacity', '0.5');
         $.ajax({
@@ -48,7 +54,8 @@ jQuery(document).ready(function($) {
             type: 'POST',
             data: {
                 action: 'wshc_list_applications',
-                nonce: wshc_dashboard_obj.nonce
+                nonce: wshc_dashboard_obj.nonce,
+                search: search
             },
             success: function(response) {
                 container.css('opacity', '1');
@@ -59,15 +66,17 @@ jQuery(document).ready(function($) {
         });
     }
 
-    function loadMembershipDirectory() {
-        const container = $('#membership-dir-container');
+    function loadExpiredMemberships(search = '') {
+        const container = $('#membership-expired-container');
+        if (!container.length) return;
         container.css('opacity', '0.5');
         $.ajax({
             url: wshc_dashboard_obj.ajaxurl,
             type: 'POST',
             data: {
-                action: 'wshc_list_memberships',
-                nonce: wshc_dashboard_obj.nonce
+                action: 'wshc_list_expired_memberships',
+                nonce: wshc_dashboard_obj.nonce,
+                search: search
             },
             success: function(response) {
                 container.css('opacity', '1');
@@ -77,6 +86,35 @@ jQuery(document).ready(function($) {
             }
         });
     }
+
+    function loadMembershipDirectory(search = '') {
+        const container = $('#membership-dir-container');
+        container.css('opacity', '0.5');
+        $.ajax({
+            url: wshc_dashboard_obj.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'wshc_list_memberships',
+                nonce: wshc_dashboard_obj.nonce,
+                search: search
+            },
+            success: function(response) {
+                container.css('opacity', '1');
+                if (response.success) {
+                    container.html(response.data.html);
+                }
+            }
+        });
+    }
+
+    let membershipSearchTimer;
+    $(document).on('input', '#membership-hub-search', function() {
+        clearTimeout(membershipSearchTimer);
+        const search = $(this).val();
+        membershipSearchTimer = setTimeout(() => {
+            loadMembershipHub();
+        }, 500);
+    });
 
     $(document).on('click', '.process-app', function() {
         const id = $(this).data('id');

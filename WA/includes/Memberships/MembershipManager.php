@@ -12,12 +12,21 @@ class MembershipManager {
     public function init() {
         add_filter('get_avatar', [$this, 'use_custom_avatar'], 10, 5);
         add_shortcode('wshc_members_directory', [$this, 'render_public_directory']);
+
+        // Automated Lifecycle Pipeline
+        add_action('wshc_check_expirations', [$this, 'automated_expiration_pipeline']);
+        if (!wp_next_scheduled('wshc_check_expirations')) {
+            wp_schedule_event(time(), 'hourly', 'wshc_check_expirations');
+        }
+
+        // AJAX Handlers
         add_action('wp_ajax_wshc_load_more_members', [$this, 'load_more_members']);
         add_action('wp_ajax_nopriv_wshc_load_more_members', [$this, 'load_more_members']);
         add_action('wp_ajax_wshc_submit_membership_app', [$this, 'submit_application']);
         add_action('wp_ajax_wshc_list_applications', [$this, 'list_applications']);
         add_action('wp_ajax_wshc_process_application', [$this, 'process_application']);
         add_action('wp_ajax_wshc_list_memberships', [$this, 'list_memberships']);
+        add_action('wp_ajax_wshc_list_expired_memberships', [$this, 'list_expired_memberships']);
         add_action('wp_ajax_wshc_delete_membership', [$this, 'delete_membership']);
         add_action('wp_ajax_wshc_get_application_details', [$this, 'get_application_details']);
         add_action('wp_ajax_wshc_send_clarification', [$this, 'send_clarification']);
@@ -116,9 +125,17 @@ class MembershipManager {
             wp_send_json_error(['message' => 'Permission denied.']);
         }
 
+        $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
         global $wpdb;
         $table = $wpdb->prefix . 'wshc_membership_applications';
-        $apps = $wpdb->get_results("SELECT * FROM $table WHERE status = 'pending' ORDER BY created_at DESC");
+
+        $where = "WHERE status = 'pending'";
+        if (!empty($search)) {
+            $wildcard = '%' . $wpdb->esc_like($search) . '%';
+            $where .= $wpdb->prepare(" AND (full_name LIKE %s OR major LIKE %s OR nationality LIKE %s)", $wildcard, $wildcard, $wildcard);
+        }
+
+        $apps = $wpdb->get_results("SELECT * FROM $table $where ORDER BY created_at DESC");
 
         ob_start();
         ?>
@@ -213,7 +230,42 @@ class MembershipManager {
             wp_send_json_error(['message' => 'Permission denied.']);
         }
 
-        $users = get_users(['role__in' => ['wshc_member', 'wshc_research_member', 'wshc_practitioner_member', 'wshc_fellowship_member', 'wshc_scientific_reviewer', 'wshc_programs_manager', 'wshc_regional_coordinator', 'wshc_secretary_general']]);
+        $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
+
+        $args = [
+            'role__in' => ['wshc_member', 'wshc_research_member', 'wshc_practitioner_member', 'wshc_fellowship_member', 'wshc_scientific_reviewer', 'wshc_programs_manager', 'wshc_regional_coordinator', 'wshc_secretary_general'],
+            'search'   => !empty($search) ? '*' . $search . '*' : '',
+            'search_columns' => ['display_name', 'user_login', 'user_email'],
+        ];
+
+        $args['meta_query'] = [
+            'relation' => 'AND',
+            [
+                'key'     => 'wshc_membership_expiry',
+                'value'   => current_time('mysql'),
+                'compare' => '>=',
+                'type'    => 'DATETIME'
+            ]
+        ];
+
+        // Advanced meta search for serial ID
+        if (!empty($search)) {
+            $args['meta_query'][] = [
+                'relation' => 'OR',
+                [
+                    'key'     => 'wshc_membership_id',
+                    'value'   => $search,
+                    'compare' => 'LIKE'
+                ],
+                [
+                    'key'     => 'wshc_nationality',
+                    'value'   => $search,
+                    'compare' => 'LIKE'
+                ]
+            ];
+        }
+
+        $users = get_users($args);
 
         ob_start();
         ?>
@@ -259,6 +311,111 @@ class MembershipManager {
                 <?php endforeach; ?>
                 <?php if (empty($users)) : ?>
                     <tr><td colspan="5" style="text-align:center; padding:30px;">No registered members.</td></tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+        <?php
+        $html = ob_get_clean();
+        wp_send_json_success(['html' => $html]);
+    }
+
+    /**
+     * Background pipeline to handle member lifecycles.
+     */
+    public function automated_expiration_pipeline() {
+        $users = get_users([
+            'role__in' => ['wshc_member', 'wshc_research_member', 'wshc_practitioner_member', 'wshc_fellowship_member', 'wshc_scientific_reviewer', 'wshc_programs_manager', 'wshc_regional_coordinator', 'wshc_secretary_general'],
+            'meta_query' => [
+                [
+                    'key'     => 'wshc_membership_expiry',
+                    'value'   => current_time('mysql'),
+                    'compare' => '<',
+                    'type'    => 'DATETIME'
+                ]
+            ]
+        ]);
+
+        foreach ($users as $user) {
+            // Log expiration event
+            $mid = get_user_meta($user->ID, 'wshc_membership_id', true);
+            \WSHC\UserManagement\ActivityLogger::log(0, 'membership_expired', "Automated revocation for Member ID: $mid (User ID: $user->ID)");
+
+            // Note: We keep the roles but the "list_memberships" filter uses the current date to separate active from expired.
+            // Requirement says "revoked live status and seamlessly move into Expired Memberships tab".
+            // The tabs are filtered by meta_query in list_memberships/list_expired_memberships.
+        }
+    }
+
+    /**
+     * List expired memberships for Administrator.
+     */
+    public function list_expired_memberships() {
+        check_ajax_referer('wshc_dashboard_nonce', 'nonce');
+
+        if (!current_user_can('administrator')) {
+            wp_send_json_error(['message' => 'Permission denied.']);
+        }
+
+        $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
+
+        $args = [
+            'role__in' => ['wshc_member', 'wshc_research_member', 'wshc_practitioner_member', 'wshc_fellowship_member', 'wshc_scientific_reviewer', 'wshc_programs_manager', 'wshc_regional_coordinator', 'wshc_secretary_general'],
+            'search'   => !empty($search) ? '*' . $search . '*' : '',
+            'meta_query' => [
+                'relation' => 'AND',
+                [
+                    'key'     => 'wshc_membership_expiry',
+                    'value'   => current_time('mysql'),
+                    'compare' => '<',
+                    'type'    => 'DATETIME'
+                ]
+            ]
+        ];
+
+        if (!empty($search)) {
+            $args['meta_query'][] = [
+                'relation' => 'OR',
+                [
+                    'key'     => 'wshc_membership_id',
+                    'value'   => $search,
+                    'compare' => 'LIKE'
+                ]
+            ];
+        }
+
+        $users = get_users($args);
+
+        ob_start();
+        ?>
+        <table class="wshc-table">
+            <thead>
+                <tr>
+                    <th>Member ID</th>
+                    <th>Full Name</th>
+                    <th>Expiry Date</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($users as $user) :
+                    $mid = get_user_meta($user->ID, 'wshc_membership_id', true);
+                    $expiry = get_user_meta($user->ID, 'wshc_membership_expiry', true);
+                ?>
+                    <tr style="opacity: 0.7;">
+                        <td><strong>#<?php echo esc_html($mid); ?></strong></td>
+                        <td><?php echo esc_html($user->display_name); ?></td>
+                        <td style="color: #d32f2f; font-weight: 700;"><?php echo date('M d, Y', strtotime($expiry)); ?></td>
+                        <td><span class="status-capsule suspended">EXPIRED</span></td>
+                        <td style="text-align: right;">
+                            <button class="action-btn delete-membership" data-id="<?php echo $user->ID; ?>" title="Archive Record" style="background:#d32f2f;">
+                                <span class="dashicons dashicons-archive"></span>
+                            </button>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if (empty($users)) : ?>
+                    <tr><td colspan="5" style="text-align:center; padding:30px;">No expired memberships found in archive.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
@@ -466,15 +623,14 @@ class MembershipManager {
         global $wpdb;
         $table = $wpdb->prefix . 'wshc_membership_applications';
 
-        // Fetch FIRST 10 approved members (descending order)
-        $query = $wpdb->prepare("
+        // Absolute Core Roster Extraction: Unrestricted Global Query
+        $query = "
             SELECT a.*, m.meta_value as membership_id
             FROM $table a
             LEFT JOIN $wpdb->usermeta m ON a.user_id = m.user_id AND m.meta_key = 'wshc_membership_id'
             WHERE a.status = 'approved'
             ORDER BY a.created_at DESC
-            LIMIT 0, 10
-        ");
+        ";
         $members_raw = $wpdb->get_results($query);
 
         // Process titles (Automatically prepend "Dr.")
