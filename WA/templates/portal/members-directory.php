@@ -8,13 +8,12 @@
         <span class="divider-text">Verified Members Registry</span>
     </div>
 
-    <!-- Table-List Hybrid Layout -->
+    <!-- Table-List Hybrid Layout (4-Column Consolidated) -->
     <div class="directory-list-container">
         <div class="directory-list-header">
-            <div class="col-category">Category</div>
-            <div class="col-identity">Member Identity</div>
+            <div class="col-id-cat">Member Category & Identity</div>
             <div class="col-field">Field of Specialization</div>
-            <div class="col-serial">Serial ID</div>
+            <div class="col-serial">Serial Tracker ID</div>
             <div class="col-country">Nationality</div>
         </div>
 
@@ -39,13 +38,14 @@
                     $flag_emoji = \WSHC\Utils\CountryPicker::get_flag($member->nationality);
                 ?>
                     <div class="member-row">
-                        <div class="col-category">
-                            <span class="member-category"><?php echo esc_html($category); ?></span>
-                        </div>
-
-                        <div class="col-identity">
-                            <?php echo get_avatar($member->user_id, 40); ?>
-                            <h2 class="member-name"><?php echo esc_html($member->full_name); ?></h2>
+                        <div class="col-id-cat">
+                            <div class="member-identity-wrap">
+                                <?php echo get_avatar($member->user_id, 40); ?>
+                                <div class="identity-text">
+                                    <h2 class="member-name"><?php echo esc_html($member->full_name); ?></h2>
+                                    <span class="member-category"><?php echo esc_html($category); ?></span>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="col-field">
@@ -82,7 +82,7 @@
         <?php endif; ?>
     </div>
 
-    <!-- Institutional Onboarding Guide & Policies (Relocated to Bottom) -->
+    <!-- Institutional Onboarding Guide & Policies (Relocated & Compacted) -->
     <footer class="directory-onboarding-section">
         <div class="guide-header">
             <h1>Institutional Membership Guide</h1>
@@ -93,17 +93,17 @@
             <div class="guide-card">
                 <span class="dashicons dashicons-awards"></span>
                 <h3>Core Institutional Values</h3>
-                <p>Upholding the highest professional and ethical standards in sport health. Our members represent excellence in scientific review, clinical practice, and regional coordination.</p>
+                <p>Upholding the highest professional and ethical standards in sport health.</p>
             </div>
             <div class="guide-card">
                 <span class="dashicons dashicons-index-card"></span>
                 <h3>Application Path</h3>
-                <p>Prospective members must complete a 6-stage credentials validation wizard. All qualifications are subject to rigorous verification via DataFlow or Quadra Bay.</p>
+                <p>Prospective members must complete a 6-stage credentials validation wizard.</p>
             </div>
             <div class="guide-card">
                 <span class="dashicons dashicons-shield"></span>
                 <h3>Regulatory Compliance</h3>
-                <p>Membership is governed by institutional bylaws. Approved members are issued unique serial IDs and are subject to annual review and policy adherence.</p>
+                <p>Membership is governed by institutional bylaws and annual policy review.</p>
             </div>
         </div>
 
