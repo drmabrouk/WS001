@@ -12,6 +12,7 @@ class UserRegistry {
     public function init() {
         add_action('wp_ajax_wshc_list_users', [$this, 'list_users']);
         add_action('wp_ajax_wshc_save_user', [$this, 'save_user']);
+        add_action('wp_ajax_wshc_check_username', [$this, 'check_username_availability']);
         add_action('wp_ajax_wshc_delete_user', [$this, 'delete_user']);
         add_action('wp_ajax_wshc_toggle_user_status', [$this, 'toggle_user_status']);
         add_action('wp_ajax_wshc_get_user_details', [$this, 'get_user_details']);
@@ -137,44 +138,93 @@ class UserRegistry {
     }
 
     /**
+     * Check if a username is available.
+     */
+    public function check_username_availability() {
+        check_ajax_referer('wshc_dashboard_nonce', 'nonce');
+
+        $username = sanitize_user($_POST['username']);
+        $user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
+
+        if (strlen($username) < 4) {
+            wp_send_json_error(['message' => 'Username must be at least 4 characters long.', 'code' => 'too_short']);
+        }
+
+        if (!preg_match('/^[a-zA-Z0-9_\-]+$/', $username)) {
+            wp_send_json_error(['message' => 'Username contains invalid characters.', 'code' => 'invalid_chars']);
+        }
+
+        $existing_user_id = username_exists($username);
+        if ($existing_user_id && $existing_user_id != $user_id) {
+            wp_send_json_error(['message' => 'This username is already taken.', 'code' => 'taken']);
+        }
+
+        wp_send_json_success(['message' => 'Username is available.']);
+    }
+
+    /**
      * Create or update a user.
      */
     public function save_user() {
         check_ajax_referer('wshc_dashboard_nonce', 'nonce');
 
-        if (!current_user_can('manage_wshc_users')) {
+        $user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
+        $is_self = (get_current_user_id() === $user_id);
+
+        if (!$is_self && !current_user_can('manage_wshc_users')) {
             wp_send_json_error(['message' => 'Permission denied.']);
         }
 
-        $user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
         $username = sanitize_user($_POST['username']);
         $email = sanitize_email($_POST['email']);
         $password = $_POST['password'];
-        $role = sanitize_text_field($_POST['role']);
+        $role = isset($_POST['role']) ? sanitize_text_field($_POST['role']) : '';
         $first_name = sanitize_text_field($_POST['first_name'] ?? '');
         $last_name = sanitize_text_field($_POST['last_name'] ?? '');
 
+        // Structural Validation
+        if (strlen($username) < 4) {
+            wp_send_json_error(['message' => 'Username modification failed: Minimum 4 characters required.']);
+        }
+
         $user_data = [
-            'user_login' => $username,
             'user_email' => $email,
             'first_name' => $first_name,
             'last_name'  => $last_name,
-            'role'       => $role,
         ];
+
+        if (!$is_self && !empty($role)) {
+            $user_data['role'] = $role;
+        }
+
+        global $wpdb;
 
         if ($user_id) {
             $user_data['ID'] = $user_id;
+            $old_user = get_userdata($user_id);
 
-            // Handle Username Cooldown for self-editing
-            if (get_current_user_id() === $user_id) {
-                $old_user = get_userdata($user_id);
-                if ($old_user->user_login !== $username) {
+            // Handle Username Modification Engine
+            if ($old_user->user_login !== $username) {
+                // Availability check
+                if (username_exists($username)) {
+                    wp_send_json_error(['message' => 'Username conflict: This identifier is already occupied.']);
+                }
+
+                // Cooldown for self-editing
+                if ($is_self) {
                     $last_change = get_user_meta($user_id, 'wshc_last_username_change', true);
                     if ($last_change && (time() - $last_change) < (30 * 86400)) {
-                        wp_send_json_error(['message' => 'Username cannot be changed yet due to security cooldown.']);
+                        wp_send_json_error(['message' => 'Security lock: Username cannot be modified until the 30-day cooldown expires.']);
                     }
                     update_user_meta($user_id, 'wshc_last_username_change', time());
                 }
+
+                // Force Update user_login in DB (Strict Isolation)
+                $wpdb->update(
+                    $wpdb->users,
+                    ['user_login' => $username, 'user_nicename' => sanitize_title($username)],
+                    ['ID' => $user_id]
+                );
             }
 
             if (!empty($password)) {

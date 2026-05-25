@@ -40,14 +40,7 @@ $design = get_option('wshc_design_settings', [
             <button id="sidebar-toggle" class="sidebar-btn"><span class="dashicons dashicons-menu"></span></button>
             <span class="system-title"><?php echo esc_html($system_title); ?></span>
         </div>
-        <div class="nav-right">
-            <div class="user-avatar-wrap" style="margin-right: 0;">
-                <?php echo get_avatar($current_user->ID, 40); ?>
-            </div>
-            <div class="user-profile-stack" style="margin-right: 0; align-items: flex-start;">
-                <span class="user-name"><?php echo esc_html($current_user->display_name); ?></span>
-                <span class="role-capsule rank-capsule"><?php echo esc_html($role_label); ?></span>
-            </div>
+        <div class="nav-right" style="gap: 12px;">
             <div class="nav-settings-dropdown">
                 <button class="settings-trigger-btn circular" title="Account Settings" style="background: none !important; border: none !important; padding: 0; box-shadow: none !important; margin-left: 0;">
                     <span class="dashicons dashicons-admin-generic"></span>
@@ -56,6 +49,13 @@ $design = get_option('wshc_design_settings', [
                     <li><a href="#" class="edit-my-profile-link"><span class="dashicons dashicons-admin-users"></span> Edit Profile Data</a></li>
                     <li><a href="<?php echo wp_logout_url(home_url('/login')); ?>"><span class="dashicons dashicons-exit"></span> Logout</a></li>
                 </ul>
+            </div>
+            <div class="user-profile-stack" style="align-items: flex-end;">
+                <span class="user-name"><?php echo esc_html($current_user->display_name); ?></span>
+                <span class="role-capsule rank-capsule"><?php echo esc_html($role_label); ?></span>
+            </div>
+            <div class="user-avatar-wrap" style="margin: 0;">
+                <?php echo get_avatar($current_user->ID, 40); ?>
             </div>
         </div>
     </nav>
