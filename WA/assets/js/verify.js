@@ -46,6 +46,21 @@
             });
         }
 
+        /**
+         * Escape HTML to prevent XSS.
+         */
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
         function renderResult(data) {
             let badgeClass = 'verification-badge';
             let badgeTitle = 'Document Validated';
@@ -56,6 +71,14 @@
                 badgeTitle = 'Document Expired';
                 badgeIcon = 'dashicons-warning';
             }
+
+            // Escape all dynamic data
+            const name = escapeHtml(data.holder_name);
+            const mid = escapeHtml(data.membership_id);
+            const docType = escapeHtml(data.doc_type);
+            const issueDate = escapeHtml(data.issue_date);
+            const expiryDate = escapeHtml(data.expiry_date);
+            const statusLabel = data.status === 'expired' ? 'Expired' : 'Active';
 
             const html = `
                 <div class="verification-sheet">
@@ -70,24 +93,24 @@
                     <div class="info-grid">
                         <div class="info-item full-width">
                             <label>Holder Full Name</label>
-                            <span>${data.holder_name}</span>
+                            <span>${name}</span>
                         </div>
                         <div class="info-item">
                             <label>Membership ID</label>
-                            <span>#${data.membership_id}</span>
+                            <span>#${mid}</span>
                         </div>
                         <div class="info-item">
                             <label>Document Type</label>
-                            <span>${data.doc_type}</span>
+                            <span>${docType}</span>
                         </div>
                         <div class="info-item">
                             <label>Issue Date</label>
-                            <span>${data.issue_date}</span>
+                            <span>${issueDate}</span>
                         </div>
                         <div class="info-item">
                             <label>Expiry Status</label>
                             <span style="color: ${data.status === 'expired' ? '#ef6c00' : '#2e7d32'}">
-                                ${data.status === 'expired' ? 'Expired' : 'Active'} (${data.expiry_date})
+                                ${statusLabel} (${expiryDate})
                             </span>
                         </div>
                     </div>
@@ -97,13 +120,14 @@
         }
 
         function renderError(message) {
+            const escapedMessage = escapeHtml(message);
             const html = `
                 <div class="verification-sheet">
                     <div class="verification-badge danger-alert">
                         <span class="dashicons dashicons-dismiss"></span>
                         <div class="badge-text">
                             <h3>Invalid Record</h3>
-                            <p>${message}</p>
+                            <p>${escapedMessage}</p>
                         </div>
                     </div>
                 </div>
