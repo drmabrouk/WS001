@@ -16,15 +16,15 @@ $system_title = in_array($roles[0], $admin_roles) ? 'Management System' : 'MY AC
             <span class="system-title"><?php echo esc_html($system_title); ?></span>
         </div>
         <div class="nav-right">
-            <div class="user-profile-stack">
+            <div class="user-profile-stack" style="margin-right: 8px;">
                 <span class="user-name"><?php echo esc_html($current_user->display_name); ?></span>
                 <span class="role-capsule rank-capsule"><?php echo esc_html($role_label); ?></span>
             </div>
-            <div class="user-avatar-wrap">
+            <div class="user-avatar-wrap" style="margin-right: 0;">
                 <?php echo get_avatar($current_user->ID, 40); ?>
             </div>
             <div class="nav-settings-dropdown">
-                <button class="settings-trigger-btn circular" title="Account Settings">
+                <button class="settings-trigger-btn circular" title="Account Settings" style="background: none; border: none; padding-left: 5px;">
                     <span class="dashicons dashicons-admin-generic"></span>
                 </button>
                 <ul class="dropdown-menu">
@@ -113,17 +113,17 @@ $system_title = in_array($roles[0], $admin_roles) ? 'Management System' : 'MY AC
                             </div>
                         </div>
                         <div class="stat-card admins">
-                            <div class="stat-icon dashicons dashicons-id"></div>
+                            <div class="stat-icon dashicons dashicons-awards"></div>
                             <div class="stat-info">
-                                <span class="stat-label">Pending Apps</span>
-                                <span class="stat-value"><?php echo number_format($stats['pending_apps'] ?? 0); ?></span>
+                                <span class="stat-label">Institutional Members</span>
+                                <span class="stat-value"><?php echo number_format($stats['institutional_members'] ?? 0); ?></span>
                             </div>
                         </div>
                     </div>
 
                     <div class="dashboard-secondary-grid">
-                        <div class="content-panel">
-                            <h2 class="section-title">RECENT SYSTEM ACTIVITIES</h2>
+                        <div class="content-panel" style="padding: 20px;">
+                            <h2 class="section-title" style="margin-bottom: 15px; font-size: 13px;">RECENT SYSTEM ACTIVITIES</h2>
                             <table class="wshc-table compact">
                                 <thead>
                                     <tr>
@@ -723,19 +723,30 @@ $system_title = in_array($roles[0], $admin_roles) ? 'Management System' : 'MY AC
                     <input type="email" name="email" id="my-form-email" required>
                 </div>
             </div>
-            <div class="wshc-auth-form-group">
-                <label>New Password (leave blank to keep current)</label>
-                <input type="password" name="password" id="my-form-password" minlength="8" maxlength="20">
-                <span class="password-toggle dashicons dashicons-visibility"></span>
-            </div>
-
-            <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
-                <button type="button" id="request-deletion-btn" class="wshc-auth-btn" style="background: #d32f2f; width: auto; font-size: 11px;">Request Account Deletion</button>
+            <div class="wshc-auth-grid">
+                <div class="wshc-auth-form-group">
+                    <label>New Password</label>
+                    <div style="position: relative;">
+                        <input type="password" name="password" id="my-form-password" minlength="8" maxlength="20" placeholder="New Password">
+                        <span class="password-toggle dashicons dashicons-visibility" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></span>
+                    </div>
+                </div>
+                <div class="wshc-auth-form-group">
+                    <label>Confirm New Password</label>
+                    <div style="position: relative;">
+                        <input type="password" name="confirm_password" id="my-form-confirm-password" minlength="8" maxlength="20" placeholder="Confirm Password">
+                        <span class="password-toggle dashicons dashicons-visibility" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></span>
+                    </div>
+                </div>
             </div>
 
             <div class="modal-actions">
                 <button type="submit" class="wshc-auth-btn">Update Profile</button>
                 <button type="button" class="wshc-auth-btn close-modal" style="background: #666;">Cancel</button>
+            </div>
+
+            <div style="margin-top: 20px; text-align: center;">
+                <a href="#" id="request-deletion-btn" style="color: #d32f2f; font-size: 11px; text-decoration: none;">Request Account Deletion</a>
             </div>
         </form>
     </div>

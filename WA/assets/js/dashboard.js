@@ -653,6 +653,15 @@ jQuery(document).ready(function($) {
 
     $(document).on('submit', '#wshc-my-profile-form', function(e) {
         e.preventDefault();
+
+        const password = $('#my-form-password').val();
+        const confirmPassword = $('#my-form-confirm-password').val();
+
+        if (password !== confirmPassword) {
+            alert('Passwords do not match.');
+            return;
+        }
+
         const btn = $(this).find('button[type="submit"]');
         const formData = $(this).serialize();
         btn.prop('disabled', true).text('UPDATING...');

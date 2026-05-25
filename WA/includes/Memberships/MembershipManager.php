@@ -236,6 +236,12 @@ class MembershipManager {
                             <?php
                             $is_suspended = get_user_meta($user->ID, 'wshc_suspended', true);
                             ?>
+                            <button class="action-btn view-user" data-id="<?php echo $user->ID; ?>" title="View Account Details" style="background:#444;">
+                                <span class="dashicons dashicons-visibility"></span>
+                            </button>
+                            <button class="action-btn edit-user" data-id="<?php echo $user->ID; ?>" title="Edit Member Data" style="background:#007cba;">
+                                <span class="dashicons dashicons-edit"></span>
+                            </button>
                             <button class="action-btn toggle-status" data-id="<?php echo $user->ID; ?>" title="<?php echo $is_suspended ? 'Reactivate' : 'Temporarily Suspend'; ?>" style="background:<?php echo $is_suspended ? '#2e7d32' : '#f57c00'; ?>;">
                                 <span class="dashicons <?php echo $is_suspended ? 'dashicons-yes' : 'dashicons-warning'; ?>"></span>
                             </button>
