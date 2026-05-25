@@ -1,118 +1,217 @@
-/* Optimized Directory Styles */
+/* Optimized Directory Styles - Neutralized & Unified */
 .wshc-public-directory-portal {
     max-width: 1200px;
     margin: 20px auto;
-    padding: 0 20px;
-    font-family: 'Inter', sans-serif;
-    background: #fdfdfd; /* Ultra-light spectrum */
+    padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: transparent; /* Seamless theme integration */
 }
 
 /* Search Bar Styling */
 .directory-search-container {
-    margin-bottom: 25px;
+    margin-bottom: 30px;
     position: relative;
 }
 
 #wshc-directory-search {
     width: 100%;
-    padding: 16px 25px;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    font-size: 15px;
+    padding: 14px 22px;
+    border: 1.5px solid #eee;
+    border-radius: 10px;
+    font-size: 14px;
     font-weight: 500;
     outline: none;
     transition: all 0.3s ease;
     background: #fff;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
 }
 
 #wshc-directory-search:focus {
-    border-color: #999;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+    border-color: #ccc;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
 }
 
-/* Institutional Onboarding Section (Relocated to bottom) */
-.directory-onboarding-section {
-    background: #f9f9f9; /* Neutral grey spectrum */
-    color: #333;
-    padding: 40px;
-    border-radius: 15px;
-    margin-top: 50px;
-    text-align: center;
+/* Hybrid Layout Styles - 4 Column Grid */
+.directory-list-header {
+    display: grid;
+    grid-template-columns: 320px 1fr 180px 180px;
+    padding: 10px 20px;
+    background: #f8f8f8;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    /* Unified Header Typography */
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 10px;
+    color: #888;
+    letter-spacing: 1px;
+}
+
+.member-row {
+    display: grid;
+    grid-template-columns: 320px 1fr 180px 180px;
+    align-items: center;
+    padding: 12px 20px;
+    background: #fff;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    transition: all 0.2s ease;
+}
+
+.member-row:hover {
+    border-color: #e0e0e0;
+    background: #fafafa;
+}
+
+.col-id-cat .member-identity-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.col-id-cat img {
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
     border: 1px solid #eee;
 }
 
+.identity-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.member-name {
+    font-size: 13.5px;
+    font-weight: 700;
+    margin: 0;
+    color: #111;
+    line-height: 1.2;
+}
+
+.member-category {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #999;
+}
+
+.col-field {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #555;
+}
+
+.col-serial {
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 600;
+    color: #777;
+    font-size: 11px;
+}
+
+.col-country {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.flag-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 18px;
+    overflow: hidden;
+    border-radius: 2px;
+    border: 1px solid #eee;
+}
+
+.country-flag {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.country-name {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #666;
+}
+
+/* Compact Institutional Onboarding Section */
+.directory-onboarding-section {
+    background: #fbfbfb;
+    color: #444;
+    padding: 25px 30px;
+    border-radius: 12px;
+    margin-top: 40px;
+    text-align: center;
+    border: 1px solid #f0f0f0;
+}
+
 .guide-header h1 {
-    font-size: 24px;
-    font-weight: 900;
-    margin-bottom: 8px;
-    letter-spacing: -0.5px;
-    color: #000;
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 4px;
+    color: #222;
 }
 
 .guide-subtitle {
-    font-size: 14px;
-    opacity: 0.7;
-    margin-bottom: 30px;
+    font-size: 11px;
+    opacity: 0.6;
+    margin-bottom: 20px;
 }
 
 .onboarding-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    margin-bottom: 30px;
+    gap: 15px;
+    margin-bottom: 20px;
 }
 
 .guide-card {
     background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid #eee;
-    transition: all 0.3s ease;
-}
-
-.guide-card:hover {
-    border-color: #ccc;
-    transform: translateY(-3px);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #f0f0f0;
 }
 
 .guide-card .dashicons {
-    font-size: 30px;
-    width: 30px;
-    height: 30px;
-    margin-bottom: 15px;
-    color: #444;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    margin-bottom: 10px;
+    color: #888;
 }
 
 .guide-card h3 {
-    font-size: 16px;
+    font-size: 13px;
     font-weight: 700;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .guide-card p {
-    font-size: 13px;
-    line-height: 1.5;
+    font-size: 11px;
+    line-height: 1.4;
     opacity: 0.8;
 }
 
 .policy-footer {
-    border-top: 1px solid #eee;
-    padding-top: 15px;
-    font-size: 11px;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 12px;
+    font-size: 10px;
     opacity: 0.6;
 }
 
 .policy-footer a {
-    color: #000;
-    text-decoration: underline;
-    font-weight: 600;
+    color: #222;
+    font-weight: 700;
 }
 
 .directory-divider {
     text-align: center;
     position: relative;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .directory-divider::before {
@@ -122,176 +221,51 @@
     left: 0;
     width: 100%;
     height: 1px;
-    background: #eee;
+    background: #f0f0f0;
     z-index: 1;
 }
 
 .divider-text {
     position: relative;
     z-index: 2;
-    background: #fdfdfd;
-    padding: 0 15px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    font-size: 11px;
-    color: #999;
-}
-
-/* Hybrid Layout Styles */
-.directory-list-header {
-    display: grid;
-    grid-template-columns: 160px 1fr 220px 140px 180px;
-    padding: 12px 25px;
-    background: #f5f5f5;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: 10px;
-    color: #777;
-    letter-spacing: 1px;
-}
-
-.member-row {
-    display: grid;
-    grid-template-columns: 160px 1fr 220px 140px 180px;
-    align-items: center;
-    padding: 15px 25px;
     background: #fff;
-    border: 1px solid #efefef;
-    border-radius: 10px;
-    margin-bottom: 8px;
-    transition: all 0.2s ease;
-}
-
-.member-row:hover {
-    border-color: #ddd;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.03);
-}
-
-.col-category .member-category {
-    font-size: 9px;
-    font-weight: 800;
+    padding: 0 12px;
+    font-weight: 700;
     text-transform: uppercase;
-    background: #f0f0f0;
-    color: #555;
-    padding: 3px 8px;
-    border-radius: 3px;
-    border: 1px solid #e0e0e0;
-}
-
-.col-identity {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.col-identity img {
-    border-radius: 50%;
-    border: 1.5px solid #f0f0f0;
-    width: 36px;
-    height: 36px;
-}
-
-.member-name {
-    font-size: 14px;
-    font-weight: 800;
-    margin: 0;
-    color: #1a1a1a;
-}
-
-.col-field {
-    font-size: 13px;
-    font-weight: 600;
-    color: #555;
-}
-
-.col-serial {
-    font-family: monospace;
-    font-weight: 700;
-    color: #999;
-    font-size: 12px;
-}
-
-.col-country {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-/* Flag Element Optimization */
-.flag-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px; /* Increased scale */
-    height: 22px;
-    overflow: hidden;
-    border-radius: 3px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    background: #f9f9f9;
-    border: 1px solid #eee;
-}
-
-.country-flag {
-    font-size: 20px; /* High-res emoji scale */
-    line-height: 1;
-    display: block;
-}
-
-.country-name {
-    font-size: 12px;
-    font-weight: 700;
-    color: #444;
+    letter-spacing: 1px;
+    font-size: 10px;
+    color: #ccc;
 }
 
 .load-more-container {
     text-align: center;
-    margin-top: 30px;
+    margin-top: 25px;
 }
 
 .wshc-load-more-btn {
     background: #fff;
-    color: #1a1a1a;
-    border: 1.5px solid #eee;
-    padding: 12px 30px;
-    border-radius: 25px;
-    font-weight: 800;
+    color: #444;
+    border: 1px solid #e0e0e0;
+    padding: 10px 24px;
+    border-radius: 20px;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
+    font-size: 11px;
+    transition: all 0.2s;
 }
 
 .wshc-load-more-btn:hover {
-    border-color: #999;
-    background: #f9f9f9;
-}
-
-.wshc-load-more-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+    background: #f8f8f8;
+    border-color: #ccc;
 }
 
 .no-members-notice {
     text-align: center;
-    padding: 40px;
-    background: #fdfdfd;
-    border-radius: 15px;
-    border: 2px dashed #eee;
-    color: #aaa;
-}
-
-.no-members-notice .dashicons {
-    font-size: 40px;
-    width: 40px;
-    height: 40px;
-    margin-bottom: 15px;
+    padding: 30px;
+    color: #bbb;
+    font-size: 12px;
 }
 
 .spin { animation: spin 1s linear infinite; }

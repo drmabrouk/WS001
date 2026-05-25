@@ -430,12 +430,14 @@ class MembershipManager {
             $flag_emoji = \WSHC\Utils\CountryPicker::get_flag($member->nationality);
             ?>
             <div class="member-row">
-                <div class="col-category">
-                    <span class="member-category"><?php echo esc_html($category); ?></span>
-                </div>
-                <div class="col-identity">
-                    <?php echo get_avatar($member->user_id, 40); ?>
-                    <h2 class="member-name"><?php echo esc_html($name); ?></h2>
+                <div class="col-id-cat">
+                    <div class="member-identity-wrap">
+                        <?php echo get_avatar($member->user_id, 40); ?>
+                        <div class="identity-text">
+                            <h2 class="member-name"><?php echo esc_html($name); ?></h2>
+                            <span class="member-category"><?php echo esc_html($category); ?></span>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-field">
                     <span class="field-text"><?php echo esc_html($member->major); ?></span>
