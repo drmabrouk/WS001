@@ -135,6 +135,8 @@
 .status-capsule.published { background: #000; color: #fff; }
 .status-capsule.rejected { background: #ffebee; color: #d32f2f; }
 .status-capsule.restricted { background: #444; color: #fff; }
+.status-capsule.needs_revision { background: #fff3e0; color: #f57c00; }
+.status-capsule.under_peer_review { background: #e8f5e9; color: #2e7d32; }
 
 .repo-placeholder {
     text-align: center;

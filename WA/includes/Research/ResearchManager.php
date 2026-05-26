@@ -10,7 +10,7 @@ class ResearchManager {
      * Initialize hooks.
      */
     public function init() {
-        add_shortcode('wshc_research_repository', [$this, 'render_public_repository']);
+        add_shortcode('wshc_scientific_engine', [$this, 'render_public_repository']);
 
         // Submission Pipeline
         add_action('wp_ajax_wshc_submit_research', [$this, 'handle_submission']);
@@ -201,8 +201,9 @@ class ResearchManager {
     }
 
     public function render_public_repository() {
-        wp_enqueue_style('wshc-research-style', WSHC_PLUGIN_URL . 'assets/css/research.css', [], '1.0.0');
-        wp_enqueue_script('wshc-research-js', WSHC_PLUGIN_URL . 'assets/js/research.js', ['jquery'], '1.0.0', true);
+        wp_enqueue_style('dashicons');
+        wp_enqueue_style('wshc-research-style', WSHC_PLUGIN_URL . 'assets/css/research.css', [], '1.1.0');
+        wp_enqueue_script('wshc-research-js', WSHC_PLUGIN_URL . 'assets/js/research.js', ['jquery'], '1.1.0', true);
         wp_localize_script('wshc-research-js', 'wshc_research_obj', [
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce'   => wp_create_nonce('wshc_dashboard_nonce')
