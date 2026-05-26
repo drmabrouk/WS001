@@ -85,20 +85,30 @@ class SettingsManager {
             'activity_logs' => $wpdb->get_results("SELECT * FROM {$wpdb->prefix}wshc_activity_logs"),
             'applications'  => $wpdb->get_results("SELECT * FROM {$wpdb->prefix}wshc_membership_applications"),
             'otps'          => $wpdb->get_results("SELECT * FROM {$wpdb->prefix}wshc_otps"),
+            'research_submissions' => $wpdb->get_results("SELECT * FROM {$wpdb->prefix}wshc_research_submissions"),
         ];
 
         // Package Relevant User Meta
         $user_meta = $wpdb->get_results("SELECT * FROM $wpdb->usermeta WHERE meta_key LIKE 'wshc_%'");
 
         $backup_data = [
-            'version'   => '1.2.0',
+            'version'   => '1.3.0',
             'timestamp' => current_time('mysql'),
             'settings'  => $settings,
             'tables'    => $tables,
             'user_meta' => $user_meta
         ];
 
-        $payload = base64_encode(gzcompress(json_encode($backup_data)));
+        $json_data = json_encode($backup_data);
+
+        // Professional AES-256 Encryption
+        $encryption_key = defined('NONCE_SALT') ? NONCE_SALT : 'WSHC-BACKUP-SALT-2026';
+        $cipher = "aes-256-cbc";
+        $iv_len = openssl_cipher_iv_length($cipher);
+        $iv = openssl_random_pseudo_bytes($iv_len);
+        $encrypted = openssl_encrypt(gzcompress($json_data), $cipher, $encryption_key, 0, $iv);
+
+        $payload = base64_encode($iv . $encrypted);
 
         wp_send_json_success([
             'message' => 'System state successfully packaged and encrypted.',
@@ -123,7 +133,18 @@ class SettingsManager {
         }
 
         try {
-            $json_data = gzuncompress(base64_decode($raw_payload));
+            $decoded = base64_decode($raw_payload);
+            $encryption_key = defined('NONCE_SALT') ? NONCE_SALT : 'WSHC-BACKUP-SALT-2026';
+            $cipher = "aes-256-cbc";
+            $iv_len = openssl_cipher_iv_length($cipher);
+
+            $iv = substr($decoded, 0, $iv_len);
+            $encrypted = substr($decoded, $iv_len);
+
+            $compressed_data = openssl_decrypt($encrypted, $cipher, $encryption_key, 0, $iv);
+            if (!$compressed_data) throw new \Exception('Decryption failed. Invalid key or corrupted file.');
+
+            $json_data = gzuncompress($compressed_data);
             $data = json_decode($json_data, true);
 
             if (!$data || !isset($data['version'])) {
