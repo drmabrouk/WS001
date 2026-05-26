@@ -106,6 +106,10 @@ class Activator {
                 'title'   => 'Official Members Directory',
                 'content' => '[wshc_members_directory]',
             ],
+            'research' => [
+                'title'   => 'Scientific Research Engine & Repository',
+                'content' => '[wshc_scientific_engine]',
+            ],
         ];
 
         foreach ($pages as $slug => $page_data) {

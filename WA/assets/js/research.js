@@ -180,4 +180,16 @@ jQuery(document).ready(function($) {
             alert('Citation copied to clipboard.');
         });
     });
+
+    // 5. Shared Tab Logic for Research Module
+    $(document).on('click', '.admin-research-workspace .settings-tab, .author-research-workspace .settings-tab', function() {
+        const parent = $(this).closest('.admin-research-workspace, .author-research-workspace');
+        const tabId = $(this).data('tab');
+
+        parent.find('.settings-tab').removeClass('active');
+        $(this).addClass('active');
+
+        parent.find('.settings-pane').addClass('hidden');
+        parent.find(`#tab-${tabId}`).removeClass('hidden');
+    });
 });

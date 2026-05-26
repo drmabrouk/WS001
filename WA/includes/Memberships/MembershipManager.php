@@ -621,17 +621,32 @@ class MembershipManager {
      */
     public function render_public_directory() {
         global $wpdb;
-        $table = $wpdb->prefix . 'wshc_membership_applications';
+        $table_apps = $wpdb->prefix . 'wshc_membership_applications';
 
-        // Absolute Core Roster Extraction: Unrestricted Global Query
-        $query = "
-            SELECT a.*, m.meta_value as membership_id
-            FROM $table a
-            LEFT JOIN $wpdb->usermeta m ON a.user_id = m.user_id AND m.meta_key = 'wshc_membership_id'
-            WHERE a.status = 'approved'
-            ORDER BY a.created_at DESC
-        ";
-        $members_raw = $wpdb->get_results($query);
+        // Comprehensive Mapping: Retrieve all users with Member-tier roles
+        $member_roles = ['wshc_member', 'wshc_research_member', 'wshc_practitioner_member', 'wshc_fellowship_member', 'wshc_scientific_reviewer', 'wshc_programs_manager', 'wshc_regional_coordinator', 'wshc_secretary_general'];
+
+        $users = get_users(['role__in' => $member_roles]);
+        $members = [];
+
+        foreach ($users as $user) {
+            // Check for suspension or expiration first
+            if (get_user_meta($user->ID, 'wshc_suspended', true)) continue;
+            $expiry = get_user_meta($user->ID, 'wshc_membership_expiry', true);
+            if ($expiry && strtotime($expiry) < time()) continue;
+
+            // Fetch app data if exists, fallback to user profile
+            $app = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_apps WHERE user_id = %d AND status = 'approved' ORDER BY created_at DESC LIMIT 1", $user->ID));
+
+            $members[] = (object) [
+                'user_id'       => $user->ID,
+                'full_name'     => $app ? $app->full_name : $user->display_name,
+                'major'         => $app ? $app->major : (get_user_meta($user->ID, 'wshc_specialization', true) ?: 'General Council'),
+                'nationality'   => $app ? $app->nationality : (get_user_meta($user->ID, 'wshc_nationality', true) ?: 'Global'),
+                'membership_id' => get_user_meta($user->ID, 'wshc_membership_id', true) ?: 'LGC-'.(5000 + $user->ID),
+                'degree'        => $app ? $app->degree : ''
+            ];
+        }
 
         // Process titles (Automatically prepend "Dr.")
         $members = array_map(function($member) {
@@ -643,7 +658,7 @@ class MembershipManager {
                 }
             }
             return $member;
-        }, $members_raw);
+        }, $members);
 
         // Enqueue styles & scripts
         wp_enqueue_style('wshc-directory-style', WSHC_PLUGIN_URL . 'assets/css/directory.css', [], '1.0.0');

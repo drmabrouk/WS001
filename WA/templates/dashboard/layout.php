@@ -346,6 +346,11 @@ $design = get_option('wshc_design_settings', [
                 <div id="author-research-ledger-container"></div>
             </div>
 
+        <?php
+        // Dynamic Injections for Research Modals
+        include WSHC_PLUGIN_DIR . 'templates/research/submission-wizard.php';
+        ?>
+
             <!-- Visitor Information & Apply Section -->
             <div id="section-info-apply" class="dashboard-section <?php echo ($current_section === 'info-apply' || (empty($current_section) && (current_user_can('wshc_visitor') || current_user_can('subscriber')))) ? '' : 'hidden'; ?>">
                 <h1 class="section-title">MEMBERSHIP APPLICATION WIZARD</h1>

@@ -41,6 +41,11 @@ class DashboardManager {
             wp_enqueue_style('dashicons');
             wp_enqueue_style('wshc-style', WSHC_PLUGIN_URL . 'assets/css/style.css', [], '1.0.0');
             wp_enqueue_style('wshc-dashboard-style', WSHC_PLUGIN_URL . 'assets/css/dashboard.css', [], '1.0.0');
+
+            // Research Assets
+            wp_enqueue_style('wshc-research-style', WSHC_PLUGIN_URL . 'assets/css/research.css', [], '1.1.0');
+            wp_enqueue_script('wshc-research-js', WSHC_PLUGIN_URL . 'assets/js/research.js', ['jquery'], '1.1.0', true);
+
             wp_enqueue_script('wshc-dashboard-js', WSHC_PLUGIN_URL . 'assets/js/dashboard.js', ['jquery'], '1.0.0', true);
             wp_localize_script('wshc-dashboard-js', 'wshc_dashboard_obj', [
                 'ajaxurl'         => admin_url('admin-ajax.php'),
