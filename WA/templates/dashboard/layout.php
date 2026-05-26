@@ -330,7 +330,12 @@ $design = get_option('wshc_design_settings', [
                 </div>
                 <!-- Research Submissions Log (Admin) -->
                 <div id="section-research-submissions" class="dashboard-section <?php echo $current_section === 'research-submissions' ? '' : 'hidden'; ?>">
-                    <h1 class="section-title">SCIENTIFIC RESEARCH SUBMISSIONS LOG</h1>
+                    <div class="user-management-header">
+                        <h1 class="section-title">SCIENTIFIC RESEARCH SUBMISSIONS LOG</h1>
+                        <button class="wshc-auth-btn" id="open-taxonomy-settings" style="width: auto; background: #444;">
+                            <span class="dashicons dashicons-admin-settings"></span> Institutional Taxonomy
+                        </button>
+                    </div>
                     <div id="admin-research-log-container"></div>
                 </div>
             <?php endif; ?>
@@ -350,6 +355,34 @@ $design = get_option('wshc_design_settings', [
         // Dynamic Injections for Research Modals
         include WSHC_PLUGIN_DIR . 'templates/research/submission-wizard.php';
         ?>
+
+        <!-- Institutional Taxonomy Modal -->
+        <div id="taxonomy-settings-modal" class="wshc-modal hidden">
+            <div class="wshc-modal-content" style="max-width: 500px;">
+                <h2>Institutional Taxonomy</h2>
+                <p style="font-size: 12px; color: #666; margin-bottom: 20px;">Manage global academic dictionaries used across the platform.</p>
+
+                <div class="wshc-auth-form-group">
+                    <label>Taxonomy Category</label>
+                    <select id="tax-type-select">
+                        <option value="specializations">Specialization Fields</option>
+                        <option value="departments">Institutional Departments</option>
+                        <option value="universities">Colleges & Universities</option>
+                        <option value="vocations">Professional Vocations</option>
+                    </select>
+                </div>
+
+                <div class="wshc-auth-form-group">
+                    <label>Dictionary Values (Comma-separated)</label>
+                    <textarea id="tax-values-area" style="height: 150px;" placeholder="e.g. Sports Medicine, Kinesiology, Biomechanics"></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button id="save-taxonomy-btn" class="wshc-auth-btn">Save Dictionary</button>
+                    <button class="wshc-auth-btn close-modal" style="background:#666;">Cancel</button>
+                </div>
+            </div>
+        </div>
 
             <!-- Visitor Information & Apply Section -->
             <div id="section-info-apply" class="dashboard-section <?php echo ($current_section === 'info-apply' || (empty($current_section) && (current_user_can('wshc_visitor') || current_user_can('subscriber')))) ? '' : 'hidden'; ?>">

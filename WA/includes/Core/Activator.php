@@ -38,35 +38,35 @@ class Activator {
             ],
             'wshc_member' => [
                 'display_name' => 'Member',
-                'caps'         => ['read' => true]
+                'caps'         => ['read' => true, 'publish_wshc_research' => true]
             ],
             'wshc_research_member' => [
                 'display_name' => 'Research Member',
-                'caps'         => ['read' => true]
+                'caps'         => ['read' => true, 'publish_wshc_research' => true]
             ],
             'wshc_practitioner_member' => [
                 'display_name' => 'Practitioner Member',
-                'caps'         => ['read' => true]
+                'caps'         => ['read' => true, 'publish_wshc_research' => true]
             ],
             'wshc_fellowship_member' => [
                 'display_name' => 'Fellowship Member',
-                'caps'         => ['read' => true]
+                'caps'         => ['read' => true, 'publish_wshc_research' => true]
             ],
             'wshc_scientific_reviewer' => [
                 'display_name' => 'Scientific Reviewer',
-                'caps'         => ['read' => true]
+                'caps'         => ['read' => true, 'publish_wshc_research' => true]
             ],
             'wshc_programs_manager' => [
                 'display_name' => 'Programs Manager',
-                'caps'         => ['read' => true]
+                'caps'         => ['read' => true, 'publish_wshc_research' => true]
             ],
             'wshc_regional_coordinator' => [
                 'display_name' => 'Regional Coordinator',
-                'caps'         => ['read' => true]
+                'caps'         => ['read' => true, 'publish_wshc_research' => true]
             ],
             'wshc_secretary_general' => [
                 'display_name' => 'Secretary-General',
-                'caps'         => ['read' => true]
+                'caps'         => ['read' => true, 'publish_wshc_research' => true]
             ]
         ];
 
@@ -79,6 +79,7 @@ class Activator {
         if ($admin) {
             $admin->add_cap('manage_wshc_system');
             $admin->add_cap('manage_wshc_users');
+            $admin->add_cap('publish_wshc_research');
         }
 
         // Set default role for new registrations

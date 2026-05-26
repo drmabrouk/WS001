@@ -1,151 +1,152 @@
-/* Scientific Research Engine Styles */
 .wshc-research-repo-portal {
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 40px auto;
     font-family: 'Inter', sans-serif;
 }
 
-.repo-header {
-    text-align: center;
-    margin-bottom: 50px;
+.repo-header { text-align: center; margin-bottom: 50px; }
+.repo-header h1 { font-size: 32px; font-weight: 900; }
+
+.repo-main-layout { display: grid; grid-template-columns: 300px 1fr; gap: 40px; }
+
+.repo-filters-sidebar {
+    background: #fdfdfd;
+    padding: 25px;
+    border-radius: 15px;
+    border: 1px solid #eee;
+    height: fit-content;
 }
 
-.repo-header h1 {
-    font-size: 32px;
-    font-weight: 900;
-    letter-spacing: -1px;
+.filter-group { margin-bottom: 25px; }
+.filter-group h3 { font-size: 13px; font-weight: 800; text-transform: uppercase; color: #888; margin-bottom: 12px; }
+.filter-group select, .filter-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+
+.unified-query-bar {
+    position: relative;
+    margin-bottom: 30px;
 }
 
-.search-matrix-container {
-    background: #fff;
-    padding: 30px;
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    margin-bottom: 40px;
+.unified-query-bar .dashicons {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
 }
 
-.search-row {
-    display: flex;
-    gap: 15px;
-    align-items: center;
+.unified-query-bar input {
+    width: 100%;
+    padding: 15px 15px 15px 45px;
+    border: 1.5px solid #eee;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.3s;
 }
 
-.search-row input {
-    flex: 1;
-    padding: 12px 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 14px;
-}
-
-.repo-grid {
-    display: grid;
-    gap: 25px;
-}
+.unified-query-bar input:focus { border-color: #000; outline: none; }
 
 .citation-card {
     background: #fff;
     padding: 30px;
     border: 1px solid #eee;
     border-radius: 12px;
-    transition: all 0.3s ease;
-}
-
-.citation-card:hover {
-    border-color: #000;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-}
-
-.citation-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 15px;
-    font-size: 11px;
-    font-weight: 800;
-    color: #888;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.pub-title {
-    font-size: 20px;
-    font-weight: 800;
-    margin-bottom: 10px;
-    color: #111;
-}
-
-.pub-meta {
-    margin-bottom: 15px;
-    font-size: 13px;
-}
-
-.pub-type {
-    background: #f0f0f0;
-    padding: 3px 10px;
-    border-radius: 4px;
-    font-weight: 700;
-    margin-right: 10px;
-}
-
-.pub-abstract {
-    font-size: 14px;
-    line-height: 1.6;
-    color: #555;
     margin-bottom: 20px;
 }
 
-.pub-legacy {
-    font-size: 12px;
-    background: #fff9c4;
-    padding: 10px;
-    border-radius: 6px;
-    margin-bottom: 20px;
-}
+.citation-header { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 11px; font-weight: 800; color: #999; }
+.pub-serial-block { display: flex; align-items: center; gap: 10px; }
+.digital-stamp { color: #2e7d32; border: 1px solid #e8f5e9; padding: 2px 8px; border-radius: 4px; }
 
-.pub-actions {
-    display: flex;
-    gap: 15px;
-}
+.pub-title { font-size: 20px; font-weight: 800; margin: 0 0 12px; line-height: 1.3; }
+.pub-meta { font-size: 13px; margin-bottom: 15px; }
+.pub-type { background: #f0f0f0; padding: 3px 8px; border-radius: 4px; font-weight: 700; margin-right: 10px; }
+
+.pub-abstract { font-size: 14px; line-height: 1.6; color: #555; margin-bottom: 20px; }
+
+.pub-actions { display: flex; gap: 15px; }
 
 .download-pdf-btn, .copy-citation-btn {
     text-decoration: none;
-    color: #111;
-    font-size: 12px;
-    font-weight: 800;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    gap: 8px;
     background: #f9f9f9;
+    color: #111;
     padding: 10px 20px;
     border-radius: 30px;
     border: 1px solid #eee;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
     cursor: pointer;
     transition: all 0.2s;
 }
 
-.download-pdf-btn:hover, .copy-citation-btn:hover {
-    background: #000;
-    color: #fff;
+.download-pdf-btn:hover, .copy-citation-btn:hover { background: #000; color: #fff; border-color: #000; }
+
+/* Floating Placeholder Pattern */
+.floating-input {
+    position: relative;
+    border: 1.5px solid #eee;
+    border-radius: 8px;
+    padding: 15px 15px 5px;
+    transition: all 0.3s;
+    margin-bottom: 20px;
 }
 
-.status-capsule.pending { background: #e3f2fd; color: #1976d2; }
-.status-capsule.under_peer_review { background: #e8f5e9; color: #2e7d32; }
-.status-capsule.needs_revision { background: #fff3e0; color: #f57c00; }
-.status-capsule.published { background: #000; color: #fff; }
-.status-capsule.rejected { background: #ffebee; color: #d32f2f; }
-.status-capsule.restricted { background: #444; color: #fff; }
-.status-capsule.needs_revision { background: #fff3e0; color: #f57c00; }
-.status-capsule.under_peer_review { background: #e8f5e9; color: #2e7d32; }
-
-.repo-placeholder {
-    text-align: center;
-    padding: 60px;
-    color: #ccc;
+.floating-input input, .floating-input textarea, .floating-input select {
+    width: 100%;
+    border: none !important;
+    background: transparent !important;
+    padding: 10px 0 0 !important;
+    font-size: 14px;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
-.repo-placeholder .dashicons {
-    font-size: 60px;
-    width: 60px;
-    height: 60px;
+.floating-input label {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: #999;
+    pointer-events: none;
+    transition: all 0.2s;
 }
+
+.floating-input:focus-within { border-color: #000; }
+.floating-input:focus-within label,
+.floating-input input:not(:placeholder-shown) + label,
+.floating-input textarea:not(:placeholder-shown) + label,
+.floating-input select:not([value=""]):valid + label {
+    top: 10px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.submission-progress-dots {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    color: #999;
+}
+
+.dot.active { background: #000; color: #fff; }
+
+.minimalist-tabs { border-bottom: 1.5px solid #eee; margin-bottom: 25px; }
+.minimalist-tabs .settings-tab { border: none !important; }
+.minimalist-tabs .settings-tab.active::after { background: #000; height: 2px; }
+
+.compact-academic td { padding: 12px 15px !important; font-size: 13px !important; }

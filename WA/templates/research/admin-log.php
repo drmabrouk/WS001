@@ -1,22 +1,17 @@
 <div class="admin-research-workspace">
-    <div class="settings-tabs">
-        <button class="settings-tab active" data-tab="res-inbox">📥 Inbox (Awaiting Action)</button>
-        <button class="settings-tab" data-tab="res-reviews">🔍 Peer Review Assignments</button>
-        <button class="settings-tab" data-tab="res-master">🗄️ Master Research Index</button>
+    <div class="settings-tabs minimalist-tabs">
+        <button class="settings-tab active" data-tab="res-inbox">Inbox (Awaiting Action)</button>
+        <button class="settings-tab" data-tab="res-reviews">Peer Review Assignments</button>
+        <button class="settings-tab" data-tab="res-master">Master Research Index</button>
     </div>
 
     <div class="settings-tab-content">
-        <!-- Inbox: Pending & Revision -->
         <div id="tab-res-inbox" class="settings-pane active">
             <?php render_admin_research_table($results, ['pending', 'needs_revision']); ?>
         </div>
-
-        <!-- Peer Review: Under Peer Review -->
         <div id="tab-res-reviews" class="settings-pane hidden">
             <?php render_admin_research_table($results, ['under_peer_review']); ?>
         </div>
-
-        <!-- Master Index: Published, Restricted, Rejected -->
         <div id="tab-res-master" class="settings-pane hidden">
             <?php render_admin_research_table($results, ['published', 'restricted', 'rejected']); ?>
         </div>
@@ -24,17 +19,18 @@
 </div>
 
 <?php
+if (!function_exists('render_admin_research_table')) {
 function render_admin_research_table($results, $allowed_statuses) {
     $filtered = array_filter($results, function($item) use ($allowed_statuses) {
         return in_array($item->status, $allowed_statuses);
     });
     ?>
-    <table class="wshc-table">
+    <table class="wshc-table compact-academic">
         <thead>
             <tr>
-                <th>Author / Date</th>
+                <th>Author / Timestamp</th>
                 <th>Research Title</th>
-                <th>Status</th>
+                <th>Review Status</th>
                 <th style="text-align: right;">Regulatory Controls</th>
             </tr>
         </thead>
@@ -46,7 +42,7 @@ function render_admin_research_table($results, $allowed_statuses) {
                         <div style="font-size: 10px; color: #999;"><?php echo date('M d, Y', strtotime($item->created_at)); ?></div>
                     </td>
                     <td>
-                        <div style="font-weight: 700; font-size: 13px;"><?php echo esc_html($item->title); ?></div>
+                        <div style="font-weight: 800;"><?php echo esc_html($item->title); ?></div>
                         <div style="font-size: 10px; color: #666;"><?php echo esc_html($item->affiliations); ?></div>
                     </td>
                     <td><span class="status-capsule <?php echo $item->status; ?>"><?php echo strtoupper(str_replace('_', ' ', $item->status)); ?></span></td>
@@ -73,24 +69,6 @@ function render_admin_research_table($results, $allowed_statuses) {
             <?php endif; ?>
         </tbody>
     </table>
-<?php } ?>
-
-<!-- Delegate Reviewer Modal -->
-<div id="assign-reviewer-modal" class="wshc-modal hidden">
-    <div class="wshc-modal-content" style="max-width: 400px;">
-        <h3>Delegate Reviewer</h3>
-        <p style="font-size: 12px; color: #666; margin-bottom: 20px;">Assign this manuscript to an internal scientific reviewer for evaluation.</p>
-        <select id="reviewer-pool-select" class="wshc-auth-form-group" style="width: 100%; margin-bottom: 20px; padding: 10px;">
-            <option value="0">Select internal reviewer...</option>
-            <?php
-            $reviewers = get_users(['role' => 'wshc_scientific_reviewer']);
-            foreach ($reviewers as $rev) : ?>
-                <option value="<?php echo $rev->ID; ?>"><?php echo esc_html($rev->display_name); ?></option>
-            <?php endforeach; ?>
-        </select>
-        <div class="modal-actions" style="display: flex; gap: 10px;">
-            <button id="confirm-assign-btn" class="wshc-auth-btn" style="flex: 1;">Confirm Delegation</button>
-            <button class="wshc-auth-btn close-modal" style="background:#666; flex: 1;">Cancel</button>
-        </div>
-    </div>
-</div>
+<?php }
+}
+?>

@@ -22,6 +22,9 @@ class ResearchManager {
         // Author Dashboard
         add_action('wp_ajax_wshc_list_my_research', [$this, 'list_my_research']);
 
+        // Taxonomy Settings
+        add_action('wp_ajax_wshc_save_taxonomy_settings', [$this, 'save_taxonomy_settings']);
+
         // Public Repository Search
         add_action('wp_ajax_wshc_search_research', [$this, 'search_research']);
         add_action('wp_ajax_nopriv_wshc_search_research', [$this, 'search_research']);
@@ -51,6 +54,8 @@ class ResearchManager {
             'keywords'        => sanitize_text_field($_POST['keywords']),
             'affiliations'    => sanitize_text_field($_POST['affiliations']),
             'doc_type'        => sanitize_text_field($_POST['doc_type']),
+            'specialization'  => sanitize_text_field($_POST['specialization']),
+            'author_degree'   => sanitize_text_field($_POST['author_degree'] ?? ''),
             'prior_registry'  => sanitize_text_field($_POST['prior_registry'] ?? ''),
             'policy_agreed'   => 1,
             'status'          => 'pending'
@@ -163,7 +168,9 @@ class ResearchManager {
      */
     public function search_research() {
         $keywords = sanitize_text_field($_POST['keywords'] ?? '');
-        $author = sanitize_text_field($_POST['author'] ?? '');
+        $specialization = sanitize_text_field($_POST['specialization'] ?? '');
+        $degree = sanitize_text_field($_POST['degree'] ?? '');
+        $institution = sanitize_text_field($_POST['institution'] ?? '');
         $date_start = sanitize_text_field($_POST['date_start'] ?? '');
         $date_end = sanitize_text_field($_POST['date_end'] ?? '');
 
@@ -171,21 +178,47 @@ class ResearchManager {
         $table = $wpdb->prefix . 'wshc_research_submissions';
 
         $where = "WHERE status = 'published'";
+        $params = [];
+
         if ($keywords) {
-            $where .= $wpdb->prepare(" AND (title LIKE %s OR abstract LIKE %s OR keywords LIKE %s OR serial_id LIKE %s)", '%'.$keywords.'%', '%'.$keywords.'%', '%'.$keywords.'%', '%'.$keywords.'%');
-        }
-        if ($author) {
-            $where .= $wpdb->prepare(" AND affiliations LIKE %s", '%'.$author.'%');
-        }
-        if ($date_start && $date_end) {
-            $where .= $wpdb->prepare(" AND published_at BETWEEN %s AND %s", $date_start, $date_end);
+            $wildcard = '%'.$wpdb->esc_like($keywords).'%';
+            $where .= " AND (title LIKE %s OR abstract LIKE %s OR keywords LIKE %s OR serial_id LIKE %s)";
+            array_push($params, $wildcard, $wildcard, $wildcard, $wildcard);
         }
 
-        $results = $wpdb->get_results("SELECT * FROM $table $where ORDER BY published_at DESC");
+        if ($specialization) {
+            $where .= " AND specialization = %s";
+            $params[] = $specialization;
+        }
+
+        if ($degree) {
+            $where .= " AND author_degree = %s";
+            $params[] = $degree;
+        }
+
+        if ($institution) {
+            $where .= " AND affiliations LIKE %s";
+            $params[] = '%'.$wpdb->esc_like($institution).'%';
+        }
+
+        // Handle Degree filtering via Join or Metadata if needed,
+        // for now mapping specialization as primary facet.
+
+        if ($date_start && $date_end) {
+            $where .= " AND published_at BETWEEN %s AND %s";
+            array_push($params, $date_start, $date_end);
+        }
+
+        $query = $wpdb->prepare("SELECT * FROM $table $where ORDER BY published_at DESC", $params);
+        $results = $wpdb->get_results($query);
 
         ob_start();
-        foreach ($results as $item) {
-            include WSHC_PLUGIN_DIR . 'templates/research/citation-card.php';
+        if ($results) {
+            foreach ($results as $item) {
+                include WSHC_PLUGIN_DIR . 'templates/research/citation-card.php';
+            }
+        } else {
+            echo '<div class="repo-placeholder"><span class="dashicons dashicons-search"></span><p>No records match the defined academic criteria.</p></div>';
         }
         $html = ob_get_clean();
 
@@ -219,6 +252,20 @@ class ResearchManager {
         $file = $_FILES[$key];
         $movefile = wp_handle_upload($file, ['test_form' => false]);
         return ($movefile && !isset($movefile['error'])) ? $movefile['url'] : '';
+    }
+
+    /**
+     * Save Global Taxonomy Settings.
+     */
+    public function save_taxonomy_settings() {
+        check_ajax_referer('wshc_dashboard_nonce', 'nonce');
+        if (!current_user_can('administrator') && !current_user_can('wshc_secretary_general')) wp_send_json_error();
+
+        $type = sanitize_text_field($_POST['tax_type']);
+        $values = array_map('sanitize_text_field', explode(',', $_POST['tax_values']));
+
+        update_option("wshc_dict_$type", $values);
+        wp_send_json_success(['message' => 'Institutional taxonomy updated.']);
     }
 
     private function generate_serial() {

@@ -83,6 +83,8 @@ class Schema {
             keywords text,
             affiliations text,
             doc_type varchar(50) NOT NULL,
+            specialization varchar(100),
+            author_degree varchar(50),
             prior_registry text,
             manuscript_url text NOT NULL,
             supplementary_url text,
